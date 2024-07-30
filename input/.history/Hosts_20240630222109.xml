@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hosts>
+    <!-- 物理节点关键信息 -->
+    <host name="host1">
+        <videoCard>
+            <name>GeForce GTX 1080</name>
+            <memory>8GB</memory>
+            <pcieB
+            <gpus num="1">
+                <memory>8GB</memory>
+                <cores>2560</cudaCores>
+                <multiProcessorCount>20</multiProcessorCount>
+                <maxThreadsPerMultiProcessor>2048</maxThreadsPerMultiProcessor>
+                <maxThreadsPerBlock>1024</maxThreadsPerBlock>
+            </gpus>
+        </videoCard>
+    </host>
+    
+</hosts>

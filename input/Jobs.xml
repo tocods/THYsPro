@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs>
+    <job name="job1" period="10" > <!-- 任务名称，必须 --> <!--任务周期，单位为秒，非必须，无则表示为一次性任务-->
+        <cpu> <!-- CPU部分资源需求 --> <!--必须-->
+            <cores>1</cores> <!-- 请求CPU核心数 -->
+            <flop>76800</flop> <!-- 计算量 -->
+        </cpu>
+        <gpu> <!-- GPU部分资源需求 --> <!--非必须，如果任务只在CPU上执行则不填-->
+            <memory>800</memory> <!-- 请求显存大小，单位为MB -->
+            <inputSize>100</inputSize> <!-- 输入数据大小，单位为MB -->
+            <kernels>
+                <kernel>
+                    <blockNum>10</blockNum> <!-- 请求CUDA核心数 -->
+                    <threadNum>10</threadNum> <!-- 请求每个线程块的线程数 -->
+                    <flop>10000</flop> <!-- 每线程计算量 -->
+                </kernel>
+                <kernel>
+                    <blockNum>5</blockNum> <!-- 请求CUDA核心数 -->
+                    <threadNum>10</threadNum> <!-- 请求每个线程块的线程数 -->
+                    <flop>10000</flop> <!-- 每线程计算量 -->
+                </kernel>
+            </kernels>
+            <outputSize>100</outputSize> <!-- 输出数据大小，单位为MB -->
+        </gpu>
+        <memory> <!-- 内存部分资源需求 --> <!--必须-->
+            <size>200</size> <!-- 请求内存大小，单位为MB -->
+        </memory>
+<!--        <faultInjection type="Normal"> &lt;!&ndash; 故障注入信息 &ndash;&gt; &lt;!&ndash;非必须，无则默认任务不会出错&ndash;&gt; &lt;!&ndash; 错误的分布函数： 可选项： Weibull ， Gamma， Normal， LogNormal!&ndash;&gt;-->
+<!--            <scale>10</scale> &lt;!&ndash; 形状参数 !&ndash;&gt;-->
+<!--            <shape>10</shape>  &lt;!&ndash; 尺度参数 !&ndash;&gt;-->
+<!--        </faultInjection>-->
+    </job>
+    <job name="job2">
+        <cpu> <!-- CPU部分资源需求 -->
+            <cores>1</cores> <!-- 请求CPU核心数 -->
+            <flop>384000</flop> <!-- 指令量 -->
+        </cpu>
+        <memory> <!-- 内存部分资源需求 -->
+            <size>200</size> <!-- 请求内存大小，单位为MB -->
+        </memory>
+    </job>
+    <job name="job3">
+        <cpu> <!-- CPU部分资源需求 -->
+            <cores>4</cores> <!-- 请求CPU核心数 -->
+            <flop>38400</flop> <!-- 指令量 -->
+        </cpu>
+        <memory> <!-- 内存部分资源需求 -->
+            <size>200</size> <!-- 请求内存大小，单位为MB -->
+        </memory>
+    </job>
+<!--    <duration>100</duration> &lt;!&ndash; 仿真持续时间 &ndash;&gt;-->
+</jobs>

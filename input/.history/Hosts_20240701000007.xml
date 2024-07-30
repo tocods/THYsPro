@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hosts>
+    <!-- 物理节点关键信息 -->
+    <host name="host1"> <!-- 物理节点名称 --> <!-- host1同时部署了CPU和GPU --> <!--必须-->
+        <videoCard> <!-- 显卡信息 --> <!--非必须，如果节点只部署了CPU则不填-->
+            <name>GeForce GTX 1080</name> <!-- 显卡名称 -->
+            <pcieBandwidth>16</pcieBandwidth> <!-- PCIe带宽，单位为GB/s -->
+            <gpus num="1"> <!-- 此规格GPU数量 -->
+                <memory>8</memory> <!-- 显存大小，单位为GB -->
+                <cores>2560</cudaCores>  <!-- CUDA核心数 -->
+            </gpus>
+        </videoCard>
+        <cpus num="1"> <!-- CPU数量 --> <!--必须-->
+            <name>Intel Core i7-7700K</name> <!-- CPU名称 -->
+            <cores>4</cores> <!-- CPU核心数 -->
+            <threads>8</threads> <!-- CPU线程数 -->
+            <frequency>4.2GHz</frequency> <!-- CPU主频 -->
+        </cpu>
+        <memory> <!-- 内存信息 --> <!--必须-->
+            <size>16GB</size> <!-- 内存大小 -->
+        </memory>
+        <faultInjection> <!-- 故障注入信息 --> <!--非必须，无则默认节点不会出错-->
+                <fault> <!-- 故障1 -->
+                    <type>CPU</type> <!-- 故障类型, 包括CPU、GPU-->
+                    <FaultGenerator type="Normal"> <!-- 错误的分布函数： 可选项： Weibull ， Gamma， Normal， LogNormal!-->
+                        <scale>10</scale> <!-- 形状参数 !-->
+                        <shape>10</shape>  <!-- 尺度参数 !-->
+                    </FaultGenerator>
+                </fault>
+                <fault> <!-- 故障2 -->
+                    <type>GPU</type> <!-- 故障类型 -->
+                    <FaultGenerator type="Gamma"> <!-- 错误的分布函数： 可选项： Weibull ， Gamma， Normal， LogNormal!-->
+                        <scale>10</scale> <!-- 形状参数 !-->
+                        <shape>10</shape>  <!-- 尺度参数 !-->
+                    </FaultGenerator>
+                </fault>
+        </faultInjection>
+    </host>
+    <host name="host2"> <!-- host2只部署了CPU -->
+        <cpus num=1> <!-- 此规格CPU数量 -->
+            <name>Intel Core i7-7700K</name> <!-- CPU名称 -->
+            <cores>4</cores> <!-- CPU核心数 -->
+            <threads>8</threads> <!-- CPU线程数 -->
+            <frequency>4.2GHz</frequency> <!-- CPU主频 -->
+        </cpu>
+        <memory> <!-- 内存信息 -->
+            <size>16GB</size> <!-- 内存大小 -->
+        </memory>
+    </host>
+</hosts>

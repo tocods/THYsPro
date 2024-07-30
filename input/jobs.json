@@ -1,0 +1,67 @@
+[
+    {
+        "name": "job1",
+        "period": 10.0,
+        "cpu_task": {
+            "cpu_task_info": {
+                "ram": 200.0,
+                "pes_number": 1,
+                "length": 38400,
+                "file_size": 0,
+                "output_size": 0
+            },
+            "gpu_task_info": null
+        },
+        "gpu_task": {
+            "cpu_task_info": null,
+            "gpu_task_info": {
+                "kernels": [
+                    {
+                        "block_num": 10,
+                        "thread_length": 10,
+                        "thread_num": 1024
+                    },
+                    {
+                        "block_num": 5,
+                        "thread_length": 10,
+                        "thread_num": 1024
+                    }
+                ],
+                "requested_gddram_size": 800,
+                "task_input_size": 100,
+                "task_output_size": 100
+            }
+        },
+        "generator": null
+    },
+    {
+        "name": "job2",
+        "period": 0.0,
+        "cpu_task": {
+            "cpu_task_info": {
+                "ram": 200.0,
+                "pes_number": 1,
+                "length": 38400,
+                "file_size": 0,
+                "output_size": 0
+            },
+            "gpu_task_info": null
+        },
+        "gpu_task": null
+    },
+    {
+        "name": "job3",
+        "period": 0.0,
+        "cpu_task": {
+            "cpu_task_info": {
+                "ram": 200.0,
+                "pes_number": 4,
+                "length": 38400,
+                "file_size": 0,
+                "output_size": 0
+            },
+            "gpu_task_info": null
+        },
+        "gpu_task": null
+    }
+]

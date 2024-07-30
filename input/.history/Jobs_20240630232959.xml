@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs>
+    <job name="job1">
+        <cpu> <!-- CPU资源需求 -->
+            <cores>4</cores> <!-- CPU核心数 -->
+            <minRuntime
+    </job>
+</jobs>

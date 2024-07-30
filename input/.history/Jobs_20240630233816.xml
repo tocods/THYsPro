@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs>
+    <job name="job1">
+        <cpu> <!-- CPU部分资源需求 -->
+            <cores>4</cores> <!-- 请求CPU核心数 -->
+            <minRuntime>1</minRuntime> <!-- 在获取了请求数量的CPU核心情况下的运行时间,单位为秒 -->
+        </cpu>
+        <gpu> <!-- GPU部分资源需求 --> <!--非必须，如果任务只在CPU上执行则不填-->
+            <memory>800</memory> <!-- 请求显存大小，单位为MB -->
+            <cores>2560</cores> <!-- 请求CUDA核心数 -->
+            <minRuntime>1</minRuntime> <!-- 在获取了请求数量的GPU核心情况下的运行时间,单位为秒 -->
+            <inputSize>1GB</inputSize> <!-- 输入数据大小，单位为MB -->
+            <outputSize>1GB</outputSize> <!-- 输出数据大小，单位为MB -->
+        </gpu>
+        <memory> <!-- 内存部分资源需求 -->
+            <size>200</size> <!-- 请求内存大小，单位为MB -->
+        </memory>
+    </job>
+    <job name="job2">
+        <cpu> <!-- CPU部分资源需求 -->
+            <cores>4</cores> <!-- 请求CPU核心数 -->
+            <minRuntime>1</minRuntime> <!-- 在获取了请求数量的CPU核心情况下的运行时间，单位为秒 -->
+        </cpu>
+        <memory> <!-- 内存部分资源需求 -->
+            <size>200</size> <!-- 请求内存大小，单位为MB -->
+        </memory>
+    </job>
+</jobs>

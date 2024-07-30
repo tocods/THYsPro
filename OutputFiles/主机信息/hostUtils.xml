@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hostUtilization>
+  <Util time="0">
+    <Host name="host1" cpuUtilization="0.5" ramUtilization="1">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0.25" ramUtilization="1" />
+  </Util>
+  <Util time="1">
+    <Host name="host1" cpuUtilization="0.5" ramUtilization="1">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0.25" ramUtilization="1" />
+  </Util>
+  <Util time="2">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0.01" />
+      <gpuUtilization id="1" gpu="0.03" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0.25" ramUtilization="1" />
+  </Util>
+  <Util time="3">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0.25" ramUtilization="1" />
+  </Util>
+  <Util time="4">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0.25" ramUtilization="1" />
+  </Util>
+  <Util time="5">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0.25" ramUtilization="1" />
+  </Util>
+  <Util time="6">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0.25" ramUtilization="1" />
+  </Util>
+  <Util time="7">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0.25" ramUtilization="1" />
+  </Util>
+  <Util time="8">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0.25" ramUtilization="1" />
+  </Util>
+  <Util time="9">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0.25" ramUtilization="1" />
+  </Util>
+  <Util time="10">
+    <Host name="host1" cpuUtilization="0.25" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="11">
+    <Host name="host1" cpuUtilization="0.25" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="12">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0.01" />
+      <gpuUtilization id="1" gpu="0.03" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="13">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="14">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="15">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="16">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="17">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="18">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="19">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="20">
+    <Host name="host1" cpuUtilization="0.25" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="21">
+    <Host name="host1" cpuUtilization="0.25" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0" />
+      <gpuUtilization id="1" gpu="0" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+  <Util time="22">
+    <Host name="host1" cpuUtilization="0" ramUtilization="0">
+      <gpuUtilization id="0" gpu="0.01" />
+      <gpuUtilization id="1" gpu="0.03" />
+      <gpuUtilization id="2" gpu="0" />
+      <gpuUtilization id="3" gpu="0" />
+    </Host>
+    <Host name="host2" cpuUtilization="0" ramUtilization="0" />
+  </Util>
+</hostUtilization>

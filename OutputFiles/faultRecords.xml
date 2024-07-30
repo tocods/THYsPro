@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faultRecord>
+  <faultRecord time="10" object="job1" isFalseAlarm="False" />
+</faultRecord>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs>
+    <job name="job1">
+        <cpu> <!-- CPU部分资源需求 -->
+            <cores>4</cores> <!-- 请求CPU核心数 -->
+            <minRuntime>1</minRuntime> <!-- 在获取了请求数量的CPU核心情况下的运行时间 -->
+        </cpu>
+        <gpu> <!-- GPU部分资源需求 -->
+            <memory>8GB</memory> <!-- 请求显存大小 -->
+            <cores>2560</cores> <!-- 请求CUDA核心数 -->
+            <minRuntime>1</minRuntime> <!-- 在获取了请求数量的GPU核心情况下的运行时间 -->
+            <input
+        </gpu>
+    </job>
+</jobs>

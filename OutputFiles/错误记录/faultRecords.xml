@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faultRecord>
+  <faultRecord time="5.47" object="host1" isFalseAlarm="True" />
+  <faultRecord time="16.21" object="host1" isFalseAlarm="True" />
+  <faultRecord time="17.46" object="host1" isFalseAlarm="True" />
+  <faultRecord time="19.27" object="host1" isFalseAlarm="True" />
+</faultRecord>

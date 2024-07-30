@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hosts>
+    <!-- 物理节点关键信息 -->
+    <host name="host1"> <!-- 物理节点名称 --> <!-- host1同时部署了CPU和GPU -->
+        <videoCard> <!-- 显卡信息 -->
+            <name>GeForce GTX 1080</name> <!-- 显卡名称 -->
+            <memory>8GB</memory> <!-- 显存大小 -->
+            <pcieBandwidth>16GB/s</pcieBandwidth> <!-- PCIe带宽 -->
+            <gpus num="1"> <!-- 此规格GPU数量 -->
+                <memory>8GB</memory> <!-- 显存大小 -->
+                <cores>2560</cudaCores> 
+                <frequency>1.6GHz</frequency> <!-- GPU主频 -->
+                <multiProcessorCount>20</multiProcessorCount>
+                <maxThreadsPerMultiProcessor>2048</maxThreadsPerMultiProcessor>
+                <maxThreadsPerBlock>1024</maxThreadsPerBlock>
+            </gpus>
+        </videoCard>
+        <cpus num=1> <!-- 此规格CPU数量 -->
+            <name>Intel Core i7-7700K</name> <!-- CPU名称 -->
+            <cores>4</cores> <!-- CPU核心数 -->
+            <threads>8</threads> <!-- CPU线程数 -->
+            <frequency>4.2GHz</frequency> <!-- CPU主频 -->
+        </cpu>
+        <memory> <!-- 内存信息 -->
+            <size>16GB</size> <!-- 内存大小 -->
+            <frequency>2400MHz</frequency> <!-- 内存频率 -->
+        </memory>
+    </host>
+    <host name="host2"> <!-- host2只部署了CPU -->
+        <cpus num=1> <!-- 此规格CPU数量 -->
+            <name>Intel Core i7-7700K</name> <!-- CPU名称 -->
+            <cores>4</cores> <!-- CPU核心数 -->
+            <threads>8</threads> <!-- CPU线程数 -->
+            <frequency>4.2GHz</frequency> <!-- CPU主频 -->
+        </cpu>
+        <memory> <!-- 内存信息 -->
+            <size>16GB</size> <!-- 内存大小 -->
+        </memory>
+    </host>
+</hosts>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hosts>
+    <!-- 物理节点关键信息 -->
+    <host name="host1"> <!-- 物理节点名称 --> <!-- host1同时部署了CPU和GPU --> <!--必须-->
+        <videoCard> <!-- 显卡信息 --> <!--非必须，如果节点只部署了CPU则不填--> 
+            <name>GeForce RTX 4090</name> <!-- 显卡名称 -->
+            <pcieBandwidth>16</pcieBandwidth> <!-- PCIe带宽，单位为GB/s -->
+            <gpus num="4"> <!-- 此规格GPU数量 --><!-- 通常1张显卡只有1个GPU -->
+                <memory>8</memory> <!-- 显存大小，单位为GB -->
+                <cores>2560</cores>  <!-- CUDA核心数 -->
+                <coresPerSM>64</coresPerSM> <!-- 每个SM核心数 -->
+                <flops>10000</flops> <!-- 每个核心的FLOPS -->
+                <maxBlockNum>10</maxBlockNum> <!-- 每个SM最大线程块数 -->
+            </gpus>
+        </videoCard>
+        <cpus num="1"> <!-- CPU数量 --> <!--必须-->
+            <name>Intel Core i7-7700K</name> <!-- CPU名称 -->
+            <cores>4</cores> <!-- CPU核心数 -->
+            <flops>38400</flops> <!-- 每个核心的MIPS -->
+        </cpus>
+        <memory> <!-- 内存信息 --> <!--必须-->
+            <size>16</size> <!-- 内存大小，单位为GB -->
+        </memory>
+        <faultInjection type = "Normal"> <!-- 故障注入信息 --> <!--非必须，无则默认节点不会出错--> <!-- 错误的分布函数： 可选项： Weibull ， Gamma， Normal， LogNormal!-->
+            <scale>10</scale> <!-- 形状参数 !-->
+            <shape>10</shape>  <!-- 尺度参数 !-->
+        </faultInjection>
+    </host>
+    <host name="host2"> <!-- host2只部署了CPU -->
+        <cpus num="1"> <!-- 此规格CPU数量 -->
+            <name>Intel Core i7-7700K</name> <!-- CPU名称 -->
+            <cores>4</cores> <!-- CPU核心数 -->
+            <flops>38400</flops> <!-- 每个核心的MIPS -->
+        </cpus>
+        <memory> <!-- 内存信息 -->
+            <size>16</size> <!-- 内存大小，单位为GB -->
+        </memory>
+    </host>
+</hosts>

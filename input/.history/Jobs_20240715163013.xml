@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs>
+    <job name="job1" period="10"> <!-- 任务名称，必须 --> <!--任务周期，单位为秒，非必须，无则表示为一次性任务-->
+        <cpu> <!-- CPU部分资源需求 --> <!--必须-->
+            <cores>1</cores> <!-- 请求CPU核心数 -->
+            <mi>38400</mi> <!-- 指令量 -->
+        </cpu>
+        <gpu> <!-- GPU部分资源需求 --> <!--非必须，如果任务只在CPU上执行则不填-->
+            <memory>800</memory> <!-- 请求显存大小，单位为MB -->
+            <inputSize>100</inputSize> <!-- 输入数据大小，单位为MB -->
+            <kernels>
+                <kernel>
+                    <blockNum>5</blockNum> <!-- 请求CUDA核心数 -->
+                    <threadNum>1024</threadNum> <!-- 请求每个线程块的线程数 -->
+                    <flop>100</flop> <!-- 总计算量 -->
+                </kernel>
+            </kernels>
+            <outputSize>100</outputSize> <!-- 输出数据大小，单位为MB -->
+        </gpu>
+        <memory> <!-- 内存部分资源需求 --> <!--必须-->
+            <size>200</size> <!-- 请求内存大小，单位为MB -->
+        </memory>
+        <faultInjection> <!-- 故障注入信息 --> <!--非必须，无则默认任务不会出错-->
+            <fault> <!-- 故障1 -->
+                <FaultGenerator type="Normal"> <!-- 错误的分布函数： 可选项： Weibull ， Gamma， Normal， LogNormal!-->
+                    <scale>10</scale> <!-- 形状参数 !-->
+                    <shape>10</shape>  <!-- 尺度参数 !-->
+                </FaultGenerator>
+            </fault>
+        </faultInjection>
+    </job>
+    <job name="job2">
+        <cpu> <!-- CPU部分资源需求 -->
+            <cores>1</cores> <!-- 请求CPU核心数 -->
+            <mi>100</mi> <!-- 指令量 -->
+        </cpu>
+        <memory> <!-- 内存部分资源需求 -->
+            <size>200</size> <!-- 请求内存大小，单位为MB -->
+        </memory>
+    </job>
+    <job name="job3">
+        <cpu> <!-- CPU部分资源需求 -->
+            <cores>4</cores> <!-- 请求CPU核心数 -->
+            <flop>100</flop> <!-- 计算量 -->
+        </cpu>
+        <memory> <!-- 内存部分资源需求 -->
+            <size>200</size> <!-- 请求内存大小，单位为MB -->
+        </memory>
+    </job>
+</jobs>

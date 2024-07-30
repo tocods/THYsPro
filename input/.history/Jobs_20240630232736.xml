@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs>
+    <job >
+        <name>job1</name>
+        <type>GPU</type>
+        <gpuNum>1</gpuNum>
+        <cpuNum>1</cpuNum>
+        <memory>8GB</memory>
+</jobs>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hosts>
+    <!-- 物理节点关键信息 -->
+    <host name="host1">
+        <videoCard>
+            <name>GeForce GTX 1080</name>
+            <memory>8GB</memory>
+            <gpus num="1">
+                <memory>8GB</memory>
+                <computeCapability>6.1</computeCapability>
+                <cores>2560</cudaCores>
+                <clockRate>1607MHz</clockRate>
+                <memoryBandwidth>320GB/s</memoryBandwidth>
+                <multiProcessorCount>20</multiProcessorCount>
+                <maxThreadsPerMultiProcessor>2048</maxThreadsPerMultiProcessor>
+                <maxThreadsPerBlock>1024</maxThreadsPerBlock>
+                <maxThreadDim>1024, 1024, 64</maxThreadDim>
+                <maxGridSize>2147483647, 65535, 65535</maxGridSize>
+                <maxTexture1D>131072</maxTexture1D>
+                <maxTexture2D>131072, 65536</maxTexture2D>
+                <maxTexture3D>16384, 16384, 16384</maxTexture3D>
+                <maxTexture1DLayered>32768</maxTexture1DLayered>
+                <maxTexture2DLayered>32768, 32768</maxTexture2DLayered>
+                <maxTextureCubemap>32768</maxTextureCubemap>
+                <maxTexture1DLinear>131072</maxTexture1DLinear>
+                <maxTexture2DLinear>131072, 131072</maxTexture2DLinear>
+                <maxTexture2DGather>131072, 131072</maxTexture2DGather>
+                <maxTexture3DLinear>16384, 16384, 16384</maxTexture3DLinear>
+                <maxSurface1D>32768</maxSurface1D>
+                <maxSurface2D>131072, 65536</maxSurface2D>
+                <maxSurface3D>16384, 16384, 16384</maxSurface3D>
+                <maxSurface1DLayered>32768</maxSurface1DLayered>
+                <maxSurface2DLayered>32768, 32768</maxSurface2DLayered>
+            </gpus>
+        </videoCard>
+    </host>
+    
+</hosts>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hosts>
+    <!-- 物理节点关键信息 -->
+    <host name="host1">
+        <videoCard>
+            <name>GeForce GTX 1080</name>
+            <memory>8GB</memory>
+        </videoCard>
+    </host>
+    
+</hosts>
