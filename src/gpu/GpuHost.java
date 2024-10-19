@@ -245,8 +245,9 @@ public class GpuHost extends Host {
 	@Override
 	public double submitJob(GpuJob job) {
 		// 部署了GPU，正常提交任务
-		if(isGpuEquipped())
+		if(isGpuEquipped()) {
 			return getCloudletScheduler().cloudletSubmit(job);
+		}
 		// 未部署GPU，本该由GPU执行的部分只能有CPU来执行
 		return ((GpuCloudletSchedulerTimeShared)getCloudletScheduler()).cloudletSubmitWithoutGPU(job, 0);
 	}

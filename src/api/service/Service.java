@@ -1,6 +1,5 @@
 package api.service;
 
-import api.info.JobInfo;
 import api.info.JobRunningInfo;
 import api.info.TaskRunInfo;
 import de.vandermeer.asciitable.AsciiTable;
@@ -9,7 +8,6 @@ import faulttolerant.FaultRecord;
 import faulttolerant.GPUWorkflowFaultDatacenter;
 import faulttolerant.GPUWorkflowFaultEngine;
 import faulttolerant.faultGenerator.FaultGenerator;
-import faulttolerant.faultGenerator.NormalGenerator;
 import gpu.*;
 import gpu.allocation.VideoCardAllocationPolicy;
 import gpu.allocation.VideoCardAllocationPolicyNull;
@@ -36,18 +34,13 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
-import workflow.GPUWorkflowDatacenter;
-import workflow.GPUWorkflowEngine;
 import workflow.GpuJob;
 import workflow.Kernel;
-import workflow.jobAllocation.JobAllocationInterface;
 import workflow.taskCluster.BasicClustering;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.KeyStore;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -226,14 +219,28 @@ public class Service {
         root = new Element("faultRecord");
         doc = new Document(root);
         r = null;
+        DecimalFormat fo = new DecimalFormat("##.##");
         for(FaultRecord record: faulttolerant.Parameters.faultRecordList) {
             r = new Element("faultRecord");
             r.setAttribute("time", record.time);
+            if(record.type == FaultRecord.FaultType.REBUILD)
+                r.setAttribute("type", "rebuild");
+            else
+                r.setAttribute("type", "timeover");
             r.setAttribute("object", record.fault);
             r.setAttribute("isFalseAlarm", record.ifFalseAlarm);
+            r.setAttribute("isSuccessRebuild", record.ifSuccessRebuild);
+            r.setAttribute("redundancyBefore", fo.format(record.redundancyBefore));
+            r.setAttribute("redundancyAfter", fo.format(record.redundancyAfter));
             doc.getRootElement().addContent(r);
             i++;
         }
+        double reliability = 1.0;
+        if(faulttolerant.Parameters.jobTotalRebuildNum > 0)
+            reliability = (double) faulttolerant.Parameters.jobTotalRebuildSuccessTime / faulttolerant.Parameters.jobTotalRebuildNum;
+        r = new Element("reliability");
+        r.setAttribute("value", fo.format(reliability));
+        doc.getRootElement().addContent(r);
         xmlOutput = new XMLOutputter();
         xmlOutput.setFormat(f);
 
@@ -262,6 +269,7 @@ public class Service {
         DecimalFormat dft = new DecimalFormat("###.##");
         DecimalFormat dftTransfer = new DecimalFormat("###.####");
         AsciiTable at = new AsciiTable();
+        Log.printLine(jobs.size());
         for(Cloudlet cl: jobs) {
             GpuJob gpuJob = (GpuJob) cl;
             JobRunningInfo info = new JobRunningInfo();
@@ -323,12 +331,12 @@ public class Service {
                 jobRecord.get(gpuJob.getName()).add(info);
             }
         }
-
-        at.setTextAlignment(TextAlignment.CENTER);
-        Log.printLine(at.render());
+        if(!jobs.isEmpty()) {
+            at.setTextAlignment(TextAlignment.CENTER);
+            Log.printLine(at.render());
+        }
         Log.printLine("任务群总完成时间: " + dft.format(Parameters.endTime));
         Log.printLine(String.join("", Collections.nCopies(100, "-")));
-
         for(Map.Entry<String, List<JobRunningInfo>> record: jobRecord.entrySet()) {
             r = new Element("Job");
             r.setAttribute("name", record.getKey());
@@ -363,7 +371,11 @@ public class Service {
 
         // 把xml文件输出到指定的位置
         xmlOutput.output(doc, new FileOutputStream(file));
-        return at.render();
+
+        if(!jobs.isEmpty())
+            return at.render();
+        else
+            return "";
     }
 
     //*********************************************************************************

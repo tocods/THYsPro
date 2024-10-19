@@ -12,6 +12,8 @@ public interface FaultGenerator {
      */
     void initSamples(double scale, double shape);
 
+    void initRepair(double scale, double shape);
+
     /**
      * 对错误点数组进行扩展
      */
@@ -33,4 +35,6 @@ public interface FaultGenerator {
     double getShape();
 
     String getType();
+
+    double getRepairTime();
 }

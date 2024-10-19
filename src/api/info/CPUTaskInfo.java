@@ -1,16 +1,22 @@
 package api.info;
 
 import cloudsim.UtilizationModelFull;
+import com.alibaba.fastjson.annotation.JSONField;
 import gpu.GpuCloudlet;
 import gpu.GpuTask;
 
 import java.util.List;
 
 public class CPUTaskInfo {
+
     public long length;
+
     public double ram;
+
     public long fileSize;
+
     public long outputSize;
+
     public int pesNumber;
 
     public GpuCloudlet tran2Cloudlet(Integer id, GpuTask task) {

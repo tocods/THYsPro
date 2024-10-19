@@ -130,11 +130,12 @@ public class BasicClustering implements ClusteringInterface {
                 job.addGpuTask(task);
                 getTask2Job().put(task, job);
             }
+            //Log.printLine("set Ram: " + ram);
             job.setCloudletLength(length);
             job.setRam(ram);
             job.setUserId(userId);
             idIndex++;
-            job.setName("Job" + taskList.get(0).getCloudletId());
+            //job.setName("Job" + taskList.get(0).getCloudletId());
             getJobList().add(job);
             return job;
         }

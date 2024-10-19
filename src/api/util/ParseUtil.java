@@ -310,16 +310,16 @@ public final class ParseUtil {
                 for(Element property: job.getChildren()) {
                     switch (property.getName()) {
                         case "cpu":
-                            JobInfo.TaskInfo taskInfo = new JobInfo.TaskInfo();
+                            TaskInfo taskInfo = new TaskInfo();
                             taskInfo.cpuTaskInfo = parseCPUTaskInfo(property);
                             taskInfo.gpuTaskInfo = null;
-                            jobInfo.cpuTask = taskInfo;
+                            jobInfo.cpuTask = taskInfo.cpuTaskInfo;
                             break;
                         case "gpu":
-                            JobInfo.TaskInfo taskInfo1 = new JobInfo.TaskInfo();
+                            TaskInfo taskInfo1 = new TaskInfo();
                             taskInfo1.cpuTaskInfo = null;
                             taskInfo1.gpuTaskInfo = parseGPUTaskInfo(property);
-                            jobInfo.gpuTask = taskInfo1;
+                            jobInfo.gpuTask = taskInfo1.gpuTaskInfo;
                             break;
                         case "memory":
                             memory = Double.parseDouble(property.getChildren().get(0).getValue());
@@ -331,7 +331,7 @@ public final class ParseUtil {
                             Log.printLine("包含无法解析的字段：" + property.getName());
                     }
                 }
-                jobInfo.cpuTask.cpuTaskInfo.ram = memory;
+                jobInfo.cpuTask.ram = memory;
                 ret.append('\n');
                 ret.append(jobInfo.print());
                 jobInfos.add(jobInfo);

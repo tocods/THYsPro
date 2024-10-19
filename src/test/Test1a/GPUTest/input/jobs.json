@@ -1,0 +1,28 @@
+[
+    {
+        "name": "job_gpu",
+        "period": 10.0,
+        "cpu_task": {
+            "ram": 100,
+            "pes_number": 1,
+            "length": 400
+        },
+        "gpu_task": {
+            "kernels": [
+                {
+                    "block_num": 10,
+                    "thread_length": 10,
+                    "thread_num": 1024
+                },
+                {
+                    "block_num": 5,
+                    "thread_length": 10,
+                    "thread_num": 1024
+                }
+            ],
+            "requested_gddram_size": 800,
+            "task_input_size": 100,
+            "task_output_size": 100
+        }
+    }
+]

@@ -1,0 +1,52 @@
+[
+    {
+        "name": "host_gpu",
+        "video_card_infos": [
+            {
+                "gpu_infos": [
+                    {
+                        "cores": 2560,
+                        "core_per_sm": 64,
+                        "max_block_per_sm": 10,
+                        "gddram": 800,
+                        "flops_per_core": 10000
+                    },
+                    {
+                        "cores": 2560,
+                        "core_per_sm": 64,
+                        "max_block_per_sm": 10,
+                        "gddram": 800,
+                        "flops_per_core": 10000
+                    },
+                    {
+                        "cores": 2560,
+                        "core_per_sm": 64,
+                        "max_block_per_sm": 10,
+                        "gddram": 800,
+                        "flops_per_core": 10000
+                    },
+                    {
+                        "cores": 2560,
+                        "core_per_sm": 64,
+                        "max_block_per_sm": 10,
+                        "gddram": 800,
+                        "flops_per_core": 10000
+                    }
+                ],
+                "name": "GeForce RTX 4090",
+                "pcie_bw": 16
+            }
+        ],
+        "cpu_infos": [
+            {
+                "cores": 8,
+                "mips": 100
+            },
+            {
+                "cores": 8,
+                "mips": 100
+            }
+        ],
+        "ram": 1024
+    }
+]

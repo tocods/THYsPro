@@ -19,10 +19,10 @@ public class HostInfo {
     public String print() {
         AsciiTable at = new AsciiTable();
         at.addRule();
-        at.addRow("Name", "FaultGenerator", "Scale", "Shape", "", "");
+        at.addRow("Name", "Ram", "", "", "", "");
         at.addRule();
         if(generator == null)
-            at.addRow(name,"", "", "", "", "");
+            at.addRow(name, ram, "", "", "", "");
         else
             at.addRow(name, generator.getType(), generator.getScale(), generator.getShape(), "", "");
         at.addRule();

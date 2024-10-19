@@ -21,6 +21,8 @@ import java.util.List;
  */
 public abstract class GpuTaskScheduler {
 
+	protected double gddram;
+
 	/** The previous time. */
 	private double previousTime;
 
@@ -59,6 +61,10 @@ public abstract class GpuTaskScheduler {
 		taskPausedList = new ArrayList<ResGpuTask>();
 		taskFinishedList = new ArrayList<ResGpuTask>();
 		taskFailedList = new ArrayList<ResGpuTask>();
+	}
+
+	public void setGddram(double d) {
+		this.gddram = d;
 	}
 
 	/**

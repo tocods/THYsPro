@@ -16,9 +16,15 @@ public class Parameters {
 
     public static Map<String, FaultGenerator> job2FaultInject = new HashMap<>();
 
+    public static FaultRecord record = null;
+
     public static List<FaultRecord> faultRecordList = new ArrayList<>();
 
     public static FaultInjector injector = null;
+
+    public static int jobTotalRebuildNum = 0;
+
+    public static int jobTotalRebuildSuccessTime = 0;
     public enum DistributionFamily {
 
         NONE, LOGNORMAL, GAMMA, WEIBULL, NORMAL

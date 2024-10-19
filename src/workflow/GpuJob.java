@@ -1,6 +1,7 @@
 package workflow;
 
 import cloudsim.Cloudlet;
+import faulttolerant.FaultRecord;
 import gpu.GpuCloudlet;
 import gpu.GpuTask;
 import cloudsim.Host;
@@ -22,6 +23,8 @@ public class GpuJob extends GpuCloudlet {
     private List<GpuCloudlet> tasks;
 
     private Host host;
+
+    private FaultRecord record = null;
 
 
     public GpuJob(int gpuCloudletId, long cloudletLength, int pesNumber, long cloudletFileSize, long cloudletOutputSize, UtilizationModel utilizationModelCpu, UtilizationModel utilizationModelRam, UtilizationModel utilizationModelBw, GpuTask gpuTask) {
@@ -107,5 +110,13 @@ public class GpuJob extends GpuCloudlet {
     @Override
     public GpuTask getGpuTask() {
         return super.getGpuTask();
+    }
+
+    public FaultRecord getRecord() {
+        return record;
+    }
+
+    public void setRecord(FaultRecord record) {
+        this.record = record;
     }
 }

@@ -1,0 +1,12 @@
+[
+    {
+        "name": "job_cpu",
+        "period": 10.0,
+        "cpu_task": {
+            "ram": 100,
+            "pes_number": 1,
+            "length": 900
+        },
+        "gpu_task": null
+    }
+]

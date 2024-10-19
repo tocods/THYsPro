@@ -8,28 +8,28 @@
                         "cores": 2560,
                         "core_per_sm": 64,
                         "max_block_per_sm": 10,
-                        "gddram": 8,
+                        "gddram": 8000,
                         "flops_per_core": 10000
                     },
                     {
                         "cores": 2560,
                         "core_per_sm": 64,
                         "max_block_per_sm": 10,
-                        "gddram": 8,
+                        "gddram": 8000,
                         "flops_per_core": 10000
                     },
                     {
                         "cores": 2560,
                         "core_per_sm": 64,
                         "max_block_per_sm": 10,
-                        "gddram": 8,
+                        "gddram": 8000,
                         "flops_per_core": 10000
                     },
                     {
                         "cores": 2560,
                         "core_per_sm": 64,
                         "max_block_per_sm": 10,
-                        "gddram": 8,
+                        "gddram": 8000,
                         "flops_per_core": 10000
                     }
                 ],
@@ -46,17 +46,5 @@
         ],
         "ram": 16,
         "generator": null
-    },
-    {
-        "name": "host2",
-        "video_card_infos": [],
-        "cpu_infos": [
-            {
-                "cores": 4,
-                "mips": 38400,
-                "name": "Intel Core i7-7700K"
-            }
-        ],
-        "ram": 16
     }
 ]

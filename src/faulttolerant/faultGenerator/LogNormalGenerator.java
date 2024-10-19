@@ -16,6 +16,11 @@ public class LogNormalGenerator extends NormalGenerator{
     }
 
     @Override
+    public void initRepair(double scale, double shape) {
+        repair = new LogNormalDistribution(scale, shape);
+    }
+
+    @Override
     public String getType() {
         return "LogNormal";
     }

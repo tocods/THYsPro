@@ -113,6 +113,7 @@ public class Host {
 	}
 
 	public double updateJobsProcessing(double currentTime) {
+
 		return cloudletScheduler.updateVmProcessing(currentTime, mips);
 	}
 

@@ -1,0 +1,22 @@
+[
+    {
+        "name": "job_ram_1",
+        "period": 10.0,
+        "cpu_task": {
+            "ram": 800,
+            "pes_number": 1,
+            "length": 400
+        },
+        "gpu_task": null
+    },
+    {
+        "name": "job_ram_2",
+        "period": 10.0,
+        "cpu_task": {
+            "ram": 800,
+            "pes_number": 1,
+            "length": 400
+        },
+        "gpu_task": null
+    }
+]

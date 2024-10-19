@@ -1018,7 +1018,7 @@ public class Cloudlet {
                     "Cloudlet.setCloudletStatus() : Error - Invalid integer range for Cloudlet status.");
         }
 
-        if (newStatus == Cloudlet.SUCCESS) {
+        if (newStatus == Cloudlet.SUCCESS || newStatus == Cloudlet.CANCELED) {
             finishTime = CloudSim.clock();
         }
 

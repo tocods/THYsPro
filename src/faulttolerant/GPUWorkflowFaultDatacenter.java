@@ -13,6 +13,7 @@ import gpu.GpuHost;
 import gpu.GpuTask;
 import gpu.ResGpuTask;
 import gpu.core.GpuCloudSimTags;
+import gpu.power.PowerGpuHost;
 import workflow.GPUWorkflowDatacenter;
 import workflow.GpuJob;
 import workflow.Parameters;
@@ -109,20 +110,42 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
             case FaultTolerantTags.FAULT_DATACENTER_EVENT:
                 processFaultCheck(ev);
                 break;
+            case FaultTolerantTags.FAULT_HOST_REPAIR:
+                processHostRepair(ev);
+                break;
+            case FaultTolerantTags.RECORD_FAULT_RECORD:
+                FaultRecord record = (FaultRecord)ev.getData();
+                faulttolerant.Parameters.faultRecordList.add(record);
         }
     }
 
+
     /**
-     * 在这个函数中，我们需要对集群中的所有物理节点进行错误注入
+     * 恢复故障主机
+     * @param ev 故障主机
+     */
+    protected void processHostRepair(SimEvent ev) {
+        Host h = (Host) ev.getData();
+        h.getCloudletScheduler().hostRepair(CloudSim.clock());
+        h.setFailed(false);
+        Log.printLine(new DecimalFormat("##.##").format(CloudSim.clock()) + ": " + h.getName() + "故障恢复");
+        sendNow(getId(), FaultTolerantTags.FAULT_DATACENTER_EVENT, null);
+    }
+
+    /**
+     * 在这个函数中，我们需要对集群中的物理节点进行错误注入
      */
     protected void processFaultCheck(SimEvent ev) {
-        //Log.printLine("当前时间:" + CloudSim.clock());
         Host failHost = (Host) ev.getData();
+        // 对该主机进行错误注入
         if(failHost != null)
             hostFail(failHost);
         double lastTime = Double.MAX_VALUE;
         Host toFailHost = null;
+        // 遍历所有未发生故障的主机，进行错误注入
         for(Host h: getHostList()) {
+            if(h.isFailed())
+                continue;
             FaultInjector faultInjector = getFaultInjector();
             double nextFailTime = faultInjector.nextHostFailTime(h, CloudSim.clock());
             if(nextFailTime < lastTime) {
@@ -131,24 +154,35 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
             }
         }
         if(lastTime != Double.MAX_VALUE) {
-            Log.printLine("下一次宕机：" + lastTime);
+            //Log.printLine("下一次宕机：" + lastTime);
             nextFailTime = Math.min(lastTime, nextFailTime);
             schedule(getId(), lastTime - CloudSim.clock(), FaultTolerantTags.FAULT_DATACENTER_EVENT, toFailHost);
         }
     }
+
+
+
 
     /**
      * 对发生错误的主机进行处理
      * @param h 错误主机
      */
     private void hostFail(Host h) {
-        CloudSim.cancelAll(getId(), new PredicateType(CloudSimTags.VM_DATACENTER_EVENT));
+        if(h.isFailed())
+            return;
         DecimalFormat format = new DecimalFormat("###.##");
-        Log.errPrintLine(format.format(CloudSim.clock()) + ": " + h.getName() + "宕机");
-        //TODO: 主机宕机要多久修复？目前是直接将任务重新分配到其他主机上，默认主机修复时间忽略不计
+        Log.printLine(format.format(CloudSim.clock()) + ": " + h.getName() + "宕机");
+        Double redundancyBefore = getRedundancyOfCluster();
         h.setFailed(true);
-        startMigrateTaskInFailedHost(h);
-        sendNow(getId(), CloudSimTags.VM_DATACENTER_EVENT);
+        Double redundancyAfter = getRedundancyOfCluster();
+        FaultRecord record = new FaultRecord();
+        record.type = FaultRecord.FaultType.REBUILD;
+        record.redundancyBefore = redundancyBefore;
+        record.redundancyAfter = redundancyAfter;
+        // 将故障主机上的任务迁移到其他主机上
+        startMigrateTaskInFailedHost(h, record);
+        //sendNow(getId(), CloudSimTags.VM_DATACENTER_EVENT);
+        send(getId(), getFaultInjector().hostRepairTime(h), FaultTolerantTags.FAULT_HOST_REPAIR, h);
     }
 
     @Override
@@ -176,7 +210,7 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
     /**
      * 将失败的主机中的任务重新分配到其他主机上
      */
-    private void startMigrateTaskInFailedHost(Host h){
+    private void startMigrateTaskInFailedHost(Host h, FaultRecord record){
         List<Host> filterHosts = new ArrayList<>();
         // 排除掉宕机的主机
         for(Host host: getHostList()) {
@@ -195,25 +229,44 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
             GpuCloudlet gpuCloudlet = (GpuCloudlet)cl.getCloudlet();
             job2Migrate.add((GpuJob) gpuCloudlet);
         }
-        Log.printLine(CloudSim.clock() + ": " + job2Migrate.size());
-        jobAllocation.setJobs(job2Migrate);
-        try {
-            jobAllocation.run();
-            for(GpuJob job: jobAllocation.getJobs()){
-                sendNow(getId(), CloudSimTags.CLOUDLET_SUBMIT, job);
-            }
-            DecimalFormat format = new DecimalFormat("###.##");
-            ((GpuHost)h).hostFail();
-            FaultRecord record = new FaultRecord();
+        ((GpuHost)h).hostFail();
+        DecimalFormat format = new DecimalFormat("###.##");
+        if(job2Migrate.isEmpty()) {
             record.ifFalseAlarm = "True";
             record.fault = h.getName();
             record.time = format.format(CloudSim.clock());
             faulttolerant.Parameters.faultRecordList.add(record);
+            return;
+        }
+        //Log.printLine(CloudSim.clock() + ": " + job2Migrate.size());
+        jobAllocation.setJobs(job2Migrate);
+        faulttolerant.Parameters.jobTotalRebuildNum += job2Migrate.size();
+        try {
+            jobAllocation.run();
+            record.faultJobNum = jobAllocation.getJobs().size();
+            faulttolerant.Parameters.jobTotalRebuildSuccessTime += record.faultJobNum;
+            if(jobAllocation.getJobs().size() < job2Migrate.size()) {
+                record.ifFalseAlarm = "False";
+                record.ifSuccessRebuild = "False";
+            }else
+                record.ifFalseAlarm = "True";
+            record.fault = h.getName();
+            record.time = format.format(CloudSim.clock());
+            if(!jobAllocation.getJobs().isEmpty()) {
+                for (GpuJob job : jobAllocation.getJobs()) {
+                    job.setRecord(record);
+                    sendNow(getId(), CloudSimTags.CLOUDLET_SUBMIT, job);
+                }
+            }else {
+                record.redundancyAfter = 0.0;
+                faulttolerant.Parameters.faultRecordList.add(record);
+            }
+            //faulttolerant.Parameters.faultRecordList.add(record);
         }catch (Exception e) {
-            DecimalFormat format = new DecimalFormat("###.##");
+            // 此时网络重构失败
             ((GpuHost)h).hostFail();
-            FaultRecord record = new FaultRecord();
             record.ifFalseAlarm = "False";
+            record.ifSuccessRebuild = "False";
             record.fault = h.getName();
             record.time = format.format(CloudSim.clock());
             faulttolerant.Parameters.faultRecordList.add(record);
@@ -245,6 +298,7 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
     protected void processCloudletReturn(SimEvent ev) {
         GpuJob job = (GpuJob) ev.getData();
         try {
+            //Log.printLine("当前时间：" + CloudSim.clock());
             job.setCloudletStatus(Cloudlet.SUCCESS);
             sendNow(job.getUserId(), CloudSimTags.CLOUDLET_RETURN, job);
         }catch (Exception e) {

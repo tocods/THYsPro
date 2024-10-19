@@ -16,6 +16,11 @@ public class WeibullGenerator extends NormalGenerator{
     }
 
     @Override
+    public void initRepair(double scale, double shape) {
+        repair = new WeibullDistribution(scale, shape);
+    }
+
+    @Override
     public String getType() {
         return "Normal";
     }

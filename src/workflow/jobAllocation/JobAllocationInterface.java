@@ -13,4 +13,8 @@ public interface JobAllocationInterface {
     public List<GpuJob> getJobs();
 
     public abstract void run() throws Exception;
+
+    public List<GpuJob> getRemainJobs();
+
+    public void clearRemainJobs();
 }

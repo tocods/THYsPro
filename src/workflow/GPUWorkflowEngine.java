@@ -113,7 +113,7 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
         }
     }
 
-    private void submitRepeatJob(GpuJob job) {
+    protected void submitRepeatJob(GpuJob job)  {
         Log.printLine(CloudSim.clock() + ": " + job.getName() + "需要进入下一周期");
         int datacenterId = host2Datacenter.get(job.getVmId());
         BasicClustering clustering = new BasicClustering();
@@ -128,11 +128,12 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
         jobRepeat.setName(job.getName());
         jobRepeat.setUserId(job.getUserId());
         jobRepeat.setPeriod(job.getPeriod());
+        jobRepeat.setRam(job.getRam());
         double period = job.getPeriod();
         double delay = job.getPeriod();
         //Log.printLine(jobRepeat.getExecTime());
         if(this.jobRepeat.get(job.getName()) == 0) {
-            Log.printLine(job.getName() + "超时，在" + job.getHost().getName() + "上");
+            Log.printLine(CloudSim.clock() + " : " + job.getName() + "超时，在" + job.getHost().getName() + "上");
             sendNow(datacenterId, WorkflowSimTags.WORKFLOW_CLOUDLET_OUT, job);
         }
         if(period == 0)
@@ -141,9 +142,17 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
             return;
         }
         send(getId(), delay, WorkflowSimTags.WORKFLOW_CLOUDLET_NEXT_PERIOD, jobRepeat);
-        sendNow(datacenterId, CloudSimTags.CLOUDLET_SUBMIT, jobRepeat);
-        cloudletsSubmitted ++;
-        getCloudletSubmittedList().add(job);
+        List<GpuJob> jobs = new ArrayList<>();
+        jobs.add(jobRepeat);
+        jobAllocationInterface.setJobs(jobs);
+        try {
+            jobAllocationInterface.run();
+            sendNow(datacenterId, CloudSimTags.CLOUDLET_SUBMIT, jobAllocationInterface.getJobs().get(0));
+            cloudletsSubmitted++;
+            getCloudletSubmittedList().add(job);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -218,7 +227,7 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
      */
     protected boolean ifFinish() {
         if(workflow.Parameters.duration == Double.MAX_VALUE || !haveJobRepeat)
-            return getCloudletList().isEmpty() && cloudletsSubmitted == 0 && jobNeedRepeat == 0;
+            return getCloudletList().isEmpty() && cloudletsSubmitted <= 0 && jobNeedRepeat <= 0;
         return CloudSim.clock() > workflow.Parameters.duration;
     }
 

@@ -16,6 +16,11 @@ public class GammaGenerator extends NormalGenerator{
     }
 
     @Override
+    public void initRepair(double scale, double shape) {
+        repair = new GammaDistribution(scale, shape);
+    }
+
+    @Override
     public String getType() {
         return "Gamma";
     }

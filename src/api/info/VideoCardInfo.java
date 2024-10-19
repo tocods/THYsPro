@@ -46,9 +46,10 @@ public class VideoCardInfo {
                 blocks.add(block);
             }
             Pgpu pgpu = new Pgpu(gpuId, GridVideoCardTags.NVIDIA_K1_GPU_TYPE, blocks,
-                    new GpuGddramProvisionerSimple(info.gddram), new GpuBwProvisionerShared(info.bw));
+                    new GpuGddramProvisionerSimple(info.gddram * 1024), new GpuBwProvisionerShared(info.bw));
             GpuTaskSchedulerLeftover scheduler = new GpuTaskSchedulerLeftover();
             scheduler.initSMs(info.cores, info.corePerSM, info.maxBlockPerSM);
+            scheduler.setGddram(info.gddram * 1024);
             pgpu.setGpuTaskScheduler(scheduler);
             gpuId ++;
             gpus.add(pgpu);
@@ -61,7 +62,7 @@ public class VideoCardInfo {
         GridPerformanceVgpuSchedulerFairShare vgpuScheduler = new GridPerformanceVgpuSchedulerFairShare(
                 GridVideoCardTags.NVIDIA_K1_CARD, gpus, pgpuSelectionPolicy, performanceModel);
         // PCI Express Bus Bw Provisioner
-        VideoCardBwProvisioner videoCardBwProvisioner = new VideoCardBwProvisionerShared(PCIeBW);
+        VideoCardBwProvisioner videoCardBwProvisioner = new VideoCardBwProvisionerShared(PCIeBW * 1024);
         // Video Card Power Model
         VideoCardPowerModel videoCardPowerModel = new GridVideoCardPowerModelK1(false);
         // Create a video card

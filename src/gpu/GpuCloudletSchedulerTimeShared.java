@@ -17,6 +17,10 @@ import java.util.List;
 public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared implements GpuCloudletScheduler {
 
 	private List<GpuTask> gpuTaskList;
+	private int ram;
+	public void setRam(int r) {
+		ram = r;
+	}
 
 	/**
 	 * {@link CloudletSchedulerTimeShared} with GpuCloudlet support. Assumes all PEs have same MIPS
@@ -31,12 +35,18 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 	public double updateVmProcessing(double currentTime, List<Double> mipsShare) {
 		setCurrentMipsShare(mipsShare);
 		double timeSpam = currentTime - getPreviousTime();
-
+		//Log.printLine("有" + getCloudletExecList().size() + "个任务正在执行队列");
 		for (ResCloudlet rcl : getCloudletExecList()) {
-			rcl.updateCloudletFinishedSoFar((long) (getCapacity(mipsShare) * timeSpam * rcl.getNumberOfPes() * Consts.MILLION));
+			if(rcl.getRemainingCloudletLength() == rcl.getCloudletTotalLength()) {
+				double spam = currentTime - rcl.getExecStartTime();
+				rcl.updateCloudletFinishedSoFar((long) (getCapacity(mipsShare) * spam * rcl.getNumberOfPes() * Consts.MILLION));
+			}else
+				rcl.updateCloudletFinishedSoFar((long) (getCapacity(mipsShare) * timeSpam * rcl.getNumberOfPes() * Consts.MILLION));
+			//Log.printLine(CloudSim.clock() + ": 任务被执行" + "间隔时间： " + timeSpam + " 剩余长度：" + rcl.getRemainingCloudletLength() + " 总长度：" + rcl.getCloudletTotalLength());
 		}
 
 		if (getCloudletExecList().size() == 0) {
+
 			setPreviousTime(currentTime);
 			return 0.0;
 		}
@@ -47,12 +57,28 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 		List<ResCloudlet> resCloudlets = getCloudletExecList();
 		for (ResCloudlet rcl : resCloudlets) {
 			long remainingLength = rcl.getRemainingCloudletLength();
+			//Log.printLine("remain: " + rcl.getRemainingCloudletLength());
 			if (remainingLength == 0) {// finished: remove from the list
+				//Log.printLine("remove");
 				toRemove.add(rcl);
 				cloudletFinish(rcl);
 			}
 		}
 		getCloudletExecList().removeAll(toRemove);
+		double ramInUse = 0.0;
+		toRemove = new ArrayList<>();
+		for(ResCloudlet cl: getCloudletExecList()) {
+			ramInUse += ((GpuJob)cl.getCloudlet()).getRam();
+		}
+		double ramAvailable = ram - ramInUse;
+		for(ResCloudlet rcl: getCloudletWaitingList()) {
+			if(rcl.getRam() <= ramAvailable) {
+				ramAvailable -= rcl.getRam();
+				toRemove.add(rcl);
+			}
+		}
+		getCloudletWaitingList().removeAll(toRemove);
+		getCloudletExecList().addAll(toRemove);
 
 		// estimate finish time of cloudlets
 		for (ResCloudlet rcl : getCloudletExecList()) {
@@ -68,6 +94,7 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 		}
 
 		setPreviousTime(currentTime);
+		//Log.printLine("nextEvent: " + nextEvent + "current: " + currentTime);
 		return nextEvent;
 	}
 
@@ -86,7 +113,18 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 			}
 		}
 		rcl.addLength(addLength);
-		getCloudletExecList().add(rcl);
+
+		double ramInUse = 0.0;
+		for(ResCloudlet cl: getCloudletExecList()) {
+			ramInUse += ((GpuJob)cl.getCloudlet()).getRam();
+		}
+		double ramAvailable = ram - ramInUse;
+		if(ramAvailable < ((GpuCloudlet) cloudlet).getRam()) {
+			getCloudletWaitingList().add(rcl);
+		}
+		else
+			getCloudletExecList().add(rcl);
+
 
 		// use the current capacity to estimate the extra amount of
 		// time to file transferring. It must be added to the cloudlet length
@@ -106,8 +144,17 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 		for (int i = 0; i < cloudlet.getNumberOfPes(); i++) {
 			rcl.setMachineAndPeId(0, i);
 		}
-
-		getCloudletExecList().add(rcl);
+		double ramInUse = 0.0;
+		for(ResCloudlet cl: getCloudletExecList()) {
+			ramInUse += ((GpuJob)cl.getCloudlet()).getRam();
+		}
+		double ramAvailable = ram - ramInUse;
+		if(ramAvailable < ((GpuCloudlet) cloudlet).getRam()) {
+			//Log.printLine("aaa " + ramAvailable + " < " + ((GpuCloudlet) cloudlet).getRam());
+			getCloudletWaitingList().add(rcl);
+		}
+		else
+			getCloudletExecList().add(rcl);
 
 		// use the current capacity to estimate the extra amount of
 		// time to file transferring. It must be added to the cloudlet length
@@ -182,5 +229,6 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 		getCloudletPausedList().remove(toRemove);
 		return true;
 	}
+
 
 }

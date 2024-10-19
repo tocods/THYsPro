@@ -30,6 +30,8 @@ public class ResCloudlet {
 	/** The Cloudlet object. */
 	private final Cloudlet cloudlet;
 
+	private double ram;
+
 	/** The Cloudlet arrival time for the first time. */
 	private double arrivalTime;
 
@@ -98,7 +100,7 @@ public class ResCloudlet {
 		startTime = 0;
 		reservId = NOT_FOUND;
 		duration = 0;
-
+		ram = ((GpuJob)cloudlet).getRam();
 		init();
 	}
 
@@ -125,9 +127,14 @@ public class ResCloudlet {
 		this.startTime = startTime;
 		reservId = reservID;
 		this.duration = duration;
-
+		ram = ((GpuJob)cloudlet).getRam();
 		init();
 	}
+
+	public double getRam() {
+		return ram;
+	}
+
 
 	/**
 	 * Gets the Cloudlet or reservation start time.
@@ -470,7 +477,6 @@ public class ResCloudlet {
 		// Sets the wall clock time and actual CPU time
 		double wallClockTime = CloudSim.clock() - arrivalTime;
 		cloudlet.setExecParam(wallClockTime, totalCompletionTime);
-
 		long finished = 0;
 		//if (cloudlet.getCloudletTotalLength() * Consts.MILLION < cloudletFinishedSoFar) {
 		if (cloudlet.getCloudletStatus()==Cloudlet.SUCCESS) {

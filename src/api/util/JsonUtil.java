@@ -1,10 +1,13 @@
 package api.util;
 
+import api.info.FaultInfo;
 import api.info.HostInfo;
 import api.info.JobInfo;
+import cloudsim.Log;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import faulttolerant.faultGenerator.FaultGenerator;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -16,8 +19,8 @@ public class JsonUtil {
         String s = JsonUtil.readJsonFile(path);
         JSONArray objList = JSON.parseArray(s);
         List<HostInfo> hostInfoList = new ArrayList<>();
+        assert objList != null;
         for(Object obj: objList) {
-            JSONObject jsonObject = (JSONObject) obj;
             HostInfo hostInfo = JSON.parseObject(obj.toString(), HostInfo.class);
             hostInfoList.add(hostInfo);
             hostInfo.print();
@@ -29,13 +32,26 @@ public class JsonUtil {
         String s = JsonUtil.readJsonFile(path);
         JSONArray objList = JSON.parseArray(s);
         List<JobInfo> jobInfoList = new ArrayList<>();
+        assert objList != null;
         for(Object obj: objList) {
-            JSONObject jsonObject = (JSONObject) obj;
             JobInfo jobInfo = JSON.parseObject(obj.toString(), JobInfo.class);
             jobInfoList.add(jobInfo);
             jobInfo.print();
         }
         return jobInfoList;
+    }
+
+    public List<FaultInfo> parseFaults(String path) {
+        String s = JsonUtil.readJsonFile(path);
+        JSONArray objList = JSON.parseArray(s);
+        List<FaultInfo> faultInfoList = new ArrayList<>();
+        assert objList != null;
+        for(Object obj: objList) {
+            FaultInfo faultInfo = JSON.parseObject(obj.toString(), FaultInfo.class);
+            faultInfoList.add(faultInfo);
+            faultInfo.print();
+        }
+        return faultInfoList;
     }
 
     /**

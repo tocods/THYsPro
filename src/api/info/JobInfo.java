@@ -2,6 +2,7 @@ package api.info;
 
 import cloudsim.Log;
 import cloudsim.UtilizationModelFull;
+import com.alibaba.fastjson.annotation.JSONField;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import faulttolerant.faultGenerator.FaultGenerator;
@@ -15,35 +16,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JobInfo {
+
     public double period = 0.0;
 
     public String name;
-    public TaskInfo cpuTask;
 
-    public TaskInfo gpuTask;
+    public CPUTaskInfo cpuTask;
+
+    public GPUTaskInfo gpuTask;
 
     public FaultGenerator generator = null;
-    public static class TaskInfo {
-        public CPUTaskInfo cpuTaskInfo;
-        public GPUTaskInfo gpuTaskInfo;
-    }
 
     public GpuJob tran2Job(int id, int taskIdStart, int gpuIdStart) {
-        if(gpuTask == null || gpuTask.gpuTaskInfo == null || gpuTask.gpuTaskInfo.kernels.isEmpty()) {
+        if(gpuTask == null || gpuTask.kernels.isEmpty()) {
             List<GpuCloudlet> tasks = new ArrayList<>();
-            GpuCloudlet gpuCloudlet = cpuTask.cpuTaskInfo.tran2Cloudlet(taskIdStart, null);
+            GpuCloudlet gpuCloudlet = cpuTask.tran2Cloudlet(taskIdStart, null);
             tasks.add(gpuCloudlet);
             BasicClustering clustering = new BasicClustering();
             GpuJob job = clustering.addTasks2Job(tasks);
+            job.setName(name);
             job.setCloudletId(id);
+            job.setPeriod(period);
             return job;
         }
         List<GpuCloudlet> tasks = new ArrayList<>();
-        List<GpuTask> kernels = gpuTask.gpuTaskInfo.tran2GpuTask(id, gpuIdStart);
+        List<GpuTask> kernels = gpuTask.tran2GpuTask(id, gpuIdStart);
         int kernelNum = kernels.size();
         for(int i = 0; i < kernelNum; i++) {
             if(i == 0) {
-                GpuCloudlet gpuCloudlet = cpuTask.cpuTaskInfo.tran2Cloudlet(taskIdStart, kernels.get(i));
+                GpuCloudlet gpuCloudlet = cpuTask.tran2Cloudlet(taskIdStart, kernels.get(i));
                 tasks.add(gpuCloudlet);
             }else {
                 int taskId = taskIdStart + i;
@@ -67,7 +68,7 @@ public class JobInfo {
         at.addRule();
         at.addRow("name", "period", "memory", "");
         at.addRule();
-        at.addRow(name, period, cpuTask.cpuTaskInfo.ram, "");
+        at.addRow(name, period, cpuTask.ram, "");
         at.addRule();
         if(generator != null) {
             at.addRow("faultGenerator", "scale", "shape", "");
@@ -77,13 +78,13 @@ public class JobInfo {
         }
         at.addRow("Device", "cores", "mi", "");
         at.addRule();
-        at.addRow("CPU", cpuTask.cpuTaskInfo.pesNumber, cpuTask.cpuTaskInfo.length, "");
+        at.addRow("CPU", cpuTask.pesNumber, cpuTask.length, "");
         at.addRule();
-        if(gpuTask != null && !gpuTask.gpuTaskInfo.kernels.isEmpty()) {
+        if(gpuTask != null && !gpuTask.kernels.isEmpty()) {
             int i = 0;
             at.addRow("Kernel", "blockNum", "threadPerBlock", "FLOP");
             at.addRule();
-            for(GPUTaskInfo.Kernel kernel: gpuTask.gpuTaskInfo.kernels) {
+            for(GPUTaskInfo.Kernel kernel: gpuTask.kernels) {
                 at.addRow(i, kernel.blockNum, kernel.blockNum, kernel.threadLength);
                 at.addRule();
                 i++;

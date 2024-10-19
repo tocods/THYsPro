@@ -338,6 +338,10 @@ public abstract class CloudletScheduler {
 		this.cloudletFailedList.clear();
 	}
 
+	public void hostRepair(double time) {
+		this.setPreviousTime(time);
+	}
+
 	/**
 	 * Gets the cloudlet paused list.
 	 * 

@@ -5,10 +5,7 @@ import api.Result;
 import api.util.JsonUtil;
 import api.util.ParseUtil;
 import api.info.*;
-import cloudsim.Log;
-import cloudsim.Pe;
-import cloudsim.VmScheduler;
-import cloudsim.VmSchedulerTimeShared;
+import cloudsim.*;
 import cloudsim.power.models.PowerModel;
 import cloudsim.provisioners.BwProvisionerSimple;
 import cloudsim.provisioners.RamProvisionerSimple;
@@ -150,6 +147,22 @@ public class SimEngine {
         return Result.success("");
     }
 
+    public Result parseJsonOfFault(String path) {
+        Log.printLine(String.join("", Collections.nCopies(100, "-")));
+        Log.printLine("解析错误注入信息文件 " + path);
+        Result ret = null;
+        List<FaultInfo> faultInfos = jsonParser.parseFaults(path);
+        for(FaultInfo faultInfo: faultInfos) {
+            Host h = null;
+            for(Host host: hosts)
+                if(host.getName().equals(faultInfo.aim))
+                    h = host;
+            if(h != null)
+                faulttolerant.Parameters.host2FaultInject.put(h, faultInfo.tran2Generator());
+        }
+        return Result.success("");
+    }
+
     public void setAlgorithm(Parameters.JobAllocationAlgorithm algorithm) {
         this.algorithm = algorithm;
     }
@@ -196,9 +209,11 @@ public class SimEngine {
 
         // 对主机建模
         PowerGpuHost newHost = new PowerGpuHost(hosts.size(), GpuHostTags.DUAL_INTEL_XEON_E5_2620_V3,
-                new RamProvisionerSimple(ram), new BwProvisionerSimple(bw), storage, peList, vmScheduler,
+                new RamProvisionerSimple(ram * 1024), new BwProvisionerSimple(bw), storage, peList, vmScheduler,
                 videoCardAllocationPolicy, powerModel);
-        newHost.setCloudletScheduler(new GpuCloudletSchedulerTimeShared());
+        GpuCloudletSchedulerTimeShared cloudletSchedulerTimeShared = new GpuCloudletSchedulerTimeShared();
+        cloudletSchedulerTimeShared.setRam(ram * 1024);
+        newHost.setCloudletScheduler(cloudletSchedulerTimeShared);
 
         newHost.setName(name);
         hosts.add(newHost);
@@ -211,6 +226,7 @@ public class SimEngine {
      */
     public Result addJob(JobInfo jobInfo) {
         GpuJob job = jobInfo.tran2Job(cloudletId, taskId, gpuId);
+        Log.printLine(job.getName());
         jobs.add(job);
         cloudletId ++;
         taskId += job.getTasks().size();
@@ -218,11 +234,11 @@ public class SimEngine {
         return Result.success(null);
     }
 
-    private Parameters.JobAllocationAlgorithm getAlgorithm(Integer i) {
+    public Parameters.JobAllocationAlgorithm getAlgorithm(Integer i) {
         switch (i) {
-            case 1:
+            case 0:
                 return Parameters.JobAllocationAlgorithm.RR;
-            case 2:
+            case 1:
                 return Parameters.JobAllocationAlgorithm.RANDOM;
             default:
                 return Parameters.JobAllocationAlgorithm.RR;
@@ -235,7 +251,11 @@ public class SimEngine {
         String outPath = args[0];
         String jobPath = args[2];
         String hostPath = args[1];
-        Integer algorithm = Integer.parseInt(args[3]);
+        String faultPath = args[3];
+        Integer algorithm = Integer.parseInt(args[4]);
+        Double duration = Double.parseDouble(args[5]);
+        if(duration > 0)
+            Parameters.duration = duration;
 //        engine.parseXmlOfHost(System.getProperty("user.dir") + "\\input\\Hosts.xml");
 //        engine.parseXmlOfJob(System.getProperty("user.dir") + "\\input\\Jobs.xml");
 //        engine.setAlgorithm(Parameters.JobAllocationAlgorithm.RANDOM);
@@ -244,6 +264,7 @@ public class SimEngine {
         engine.parseJsonOfHost(hostPath);
 //        engine.parseXmlOfJob(jobPath);
         engine.parseJsonOfJob(jobPath);
+        engine.parseJsonOfFault(faultPath);
         engine.setAlgorithm(engine.getAlgorithm(algorithm));
         engine.start(outPath);
     }

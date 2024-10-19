@@ -12,4 +12,6 @@ public interface FaultInjector {
     boolean ifJobFail(GpuJob task);
 
     double nextHostFailTime(Host host, double currentTime);
+
+    double hostRepairTime(Host host);
 }

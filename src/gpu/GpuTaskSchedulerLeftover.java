@@ -26,13 +26,17 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 	/** The number of used PEs. It holds virtual PE ids. */
 	protected List<Integer> usedBlocks;
 
+	private double usedGddram = 0.0;
+
 	protected Integer cores;
 
 	protected Integer coresPerSM;
 
 	protected Integer maxBlock;
 
-	private double usedGddram = 0;
+	protected Integer smNum;
+
+	protected Integer usedsmNum = 0;
 
 	private List<ResGpuTask> memoryTransferTask = new ArrayList<>();
 
@@ -56,24 +60,34 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 		this.cores = cores;
 		this.coresPerSM = coresPerSM;
 		this.maxBlock = maxBlock;
+		this.smNum = this.cores / this.coresPerSM;
 	}
 
 	public double getGPUUtil() {
+		//if(!getUsedBlocks().isEmpty())
+			//Log.printLine(getUsedBlocks().size() + " + " + getCurrentRequestedMips().size());
+		//Log.printLine("GPU Util: " + (double) getUsedBlocks().size() + " "  + getCurrentRequestedMips().size());
+		if(getCurrentRequestedMips().isEmpty())
+			return 0.0;
 		return (double) getUsedBlocks().size() / getCurrentRequestedMips().size();
 	}
 
 	@Override
 	public double updateGpuTaskProcessing(double currentTime, List<Double> mipsShare) {
+		//Log.printLine("aaaasasa");
 		setCurrentMipsShare(mipsShare);
 		double timeSpan = currentTime - getPreviousTime(); // time since last
 		// 如果不开启GPU共享，执行任务队列中只会有1个任务
 		for (ResGpuTask rcl : getTaskExecList()) {
+
 			rcl.updateTaskFinishedSoFar((long) (getTotalCurrentAvailableMipsForTask(rcl, mipsShare)
 					* rcl.getGpuTask().getUtilizationOfGpu(currentTime) * timeSpan * Consts.MILLION));
 		}
+		//Log.printLine(getTaskExecList().size() + "个任务在执行");
 		// 没有任务在执行
 		if (getTaskExecList().isEmpty() && getTaskWaitingList().isEmpty()) {
 			setPreviousTime(currentTime);
+			//Log.printLine("222");
 			return 0.0;
 		}
 
@@ -82,6 +96,7 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 			// finished anyway, rounding issue...
 			if (rcl.getRemainingTaskLength() == 0) {
 				toRemove.add(rcl);
+				//Log.printLine(CloudSim.clock() + " : 结束");
 				taskFinish(rcl);
 			}
 		}
@@ -94,7 +109,7 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 			toRemove.clear();
 			for (ResGpuTask rcl : getTaskWaitingList()) {
 				int numberOfCurrentAvailableBlocks = getCurrentMipsShare().size() - getUsedBlocks().size();
-				if (numberOfCurrentAvailableBlocks > 0) {
+				if (numberOfCurrentAvailableBlocks > 0 && (gddram - usedGddram) >= rcl.getGpuTask().getRequestedGddramSize()) {
 					rcl.setTaskStatus(GpuTask.INEXEC);
 					int numberOfAllocatedPes = 0;
 					for (int k = 0; k < mipsShare.size(); k++) {
@@ -110,6 +125,7 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 					//Log.printLine(rcl.getGpuTask().getName() + "加入待执行队列");
 					getTaskExecList().add(rcl);
 					toRemove.add(rcl);
+					usedGddram += rcl.getGpuTask().getRequestedGddramSize();
 					// 不开启GPU共享时，1次只将1个内核加入执行队列
 					if(!Parameters.enableGPUShare)
 						break;
@@ -240,6 +256,8 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 		}
 		getUsedBlocks().removeAll(pesToRemove);
 		getTaskFinishedList().add(rcl);
+		usedGddram -= rcl.getGpuTask().getRequestedGddramSize();
+		usedGddram = Math.max(0, usedGddram);
 	}
 
 	// TODO: Test it
@@ -306,12 +324,16 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 	 */
 	@Override
 	public double taskSubmit(GpuTask task) {
-		//Log.printLine(CloudSim.clock() + ": 内核"+ task.getName() +"被提交");
+
 		ResGpuTask rgt = new ResGpuTask(task);
 		// 获取GPU剩余线程块数
 		int numberOfCurrentAvailablePEs = getCurrentMipsShare().size() - getUsedBlocks().size();
+		//Log.printLine(gddram + " " + usedGddram);
+		double sizeOfCurrentAvailableGddram = gddram - usedGddram;
+
+		//Log.printLine(sizeOfCurrentAvailableGddram + " " + numberOfCurrentAvailablePEs + "   : " + task.getRequestedGddramSize());
 		// 如果还有剩余且开启了GPU共享，将任务放入执行队列
-		if (numberOfCurrentAvailablePEs > 0 && (Parameters.enableGPUShare || getTaskExecList().isEmpty())) {
+		if (numberOfCurrentAvailablePEs > 0 && sizeOfCurrentAvailableGddram >= task.getRequestedGddramSize() && (Parameters.enableGPUShare || getTaskExecList().isEmpty())) {
 			rgt.setTaskStatus(GpuTask.INEXEC);
 			int numberOfAllocatedBlocks = 0;
 			for (int i = 0; i < getCurrentMipsShare().size(); i++) {
@@ -325,7 +347,9 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 					}
 				}
 			}
+			usedGddram += task.getRequestedGddramSize();
 			getTaskExecList().add(rgt);
+			Log.printLine(getEstimatedFinishTime(rgt));
 			return getEstimatedFinishTime(rgt);
 		} else {// 没有剩余的核或者未开启GPU共享，任务内核进入等待队列
 			rgt.setTaskStatus(GpuTask.QUEUED);

@@ -120,10 +120,12 @@ public class PowerGpuHost extends PerformanceGpuHost {
 	public List<Double> getCurrentGpuUtilization() {
 		List<Double> ret = new ArrayList<>();
 		if(!isGpuEquipped()) {
+			//Log.printLine("nono");
 			ret.add(Double.MAX_VALUE);
 			return ret;
 		}
 		for(VideoCard videoCard: getVideoCardAllocationPolicy().getVideoCards()) {
+			//Log.printLine("yeye");
 			for(Pgpu pgpu: videoCard.getPgpuList()) {
 				ret.add(((GpuTaskSchedulerLeftover)pgpu.getGpuTaskScheduler()).getGPUUtil());
 			}

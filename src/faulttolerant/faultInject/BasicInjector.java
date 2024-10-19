@@ -100,6 +100,12 @@ public class BasicInjector implements FaultInjector{
         return nextTime;
     }
 
+    @Override
+    public double hostRepairTime(Host host) {
+        FaultGenerator faultGenerator = host2Generator.get(host.getId());
+        return Math.max(0, faultGenerator.getRepairTime());
+    }
+
     public static void main(String[] args) {
         FaultTolerantTags.IF_TEST = true;
         BasicInjector injector = new BasicInjector();

@@ -10,6 +10,9 @@ import java.util.Arrays;
 public class NormalGenerator implements FaultGenerator{
     // 错误注入的数学分布
     protected RealDistribution distribution;
+
+    protected RealDistribution repair;
+
     protected double[] samples;
     protected double[] cumulativeSamples;
 
@@ -40,6 +43,12 @@ public class NormalGenerator implements FaultGenerator{
         samples = distribution.sample(FaultConstants.SAMPLE_SIZE);
         cursor = 0;
         updateCumulativeSamples();
+    }
+
+    @Override
+    public void initRepair(double scale, double shape) {
+        repair = new NormalDistribution(scale, shape);
+
     }
 
     @Override
@@ -80,6 +89,15 @@ public class NormalGenerator implements FaultGenerator{
     @Override
     public String getType() {
         return "Normal";
+    }
+
+    @Override
+    public double getRepairTime() {
+        double ret = 0.0;
+        double[] samples = repair.sample(10);
+        for(double s: samples)
+            ret += s;
+        return ret / 10;
     }
 
 }
