@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobRun>
+  <Job name="job_ram_2">
+    <RunningRecord status="Success" host="host_cpu" start="0" end="8" duration="8" />
+    <RunningRecord status="Success" host="host_cpu" start="10" end="18" duration="8" />
+    <RunningRecord status="Success" host="host_cpu" start="20" end="28" duration="8" />
+  </Job>
+  <Job name="job_ram_1">
+    <RunningRecord status="Success" host="host_cpu" start="0" end="4" duration="4" />
+    <RunningRecord status="Success" host="host_cpu" start="10" end="14" duration="4" />
+    <RunningRecord status="Success" host="host_cpu" start="20" end="24" duration="4" />
+  </Job>
+</jobRun>

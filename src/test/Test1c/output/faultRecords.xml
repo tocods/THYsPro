@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faultRecord>
+  <faultRecord time="10" type="timeover" object="job_timeout" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="20" type="timeover" object="job_timeout" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="30" type="timeover" object="job_timeout" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="40" type="timeover" object="job_timeout" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="50" type="timeover" object="job_timeout" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="60" type="timeover" object="job_timeout" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="70" type="timeover" object="job_timeout" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="80" type="timeover" object="job_timeout" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="90" type="timeover" object="job_timeout" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+</faultRecord>

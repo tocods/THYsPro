@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobRun>
+  <Job name="job_cpu">
+    <RunningRecord status="Success" host="host_1" start="0" end="9.09" duration="9.09" />
+    <RunningRecord status="Success" host="host_2" start="10" end="18.99" duration="8.99" />
+    <RunningRecord status="Success" host="host_2" start="20" end="29.09" duration="9.09" />
+    <RunningRecord status="Success" host="host_2" start="30" end="39" duration="9" />
+    <RunningRecord status="Success" host="host_2" start="40" end="49" duration="9" />
+    <RunningRecord status="Success" host="host_2" start="50" end="59" duration="9" />
+    <RunningRecord status="Success" host="host_2" start="60" end="69" duration="9" />
+    <RunningRecord status="Success" host="host_2" start="70" end="79" duration="9" />
+    <RunningRecord status="Success" host="host_2" start="80" end="89" duration="9" />
+    <RunningRecord status="Success" host="host_2" start="90" end="99" duration="9" />
+  </Job>
+</jobRun>

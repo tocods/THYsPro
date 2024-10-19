@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faultRecord>
+  <faultRecord time="2.84" type="rebuild" object="host_1" isFalseAlarm="False" isSuccessRebuild="False" redundancyBefore="8.41" redundancyAfter="0" />
+  <faultRecord time="10" type="timeover" object="job_cpu" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="27.59" type="rebuild" object="host_1" isFalseAlarm="False" isSuccessRebuild="False" redundancyBefore="8.41" redundancyAfter="0" />
+  <faultRecord time="30" type="timeover" object="job_cpu" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="46.94" type="rebuild" object="host_1" isFalseAlarm="False" isSuccessRebuild="False" redundancyBefore="8.41" redundancyAfter="0" />
+  <faultRecord time="50" type="timeover" object="job_cpu" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="63.3" type="rebuild" object="host_1" isFalseAlarm="False" isSuccessRebuild="False" redundancyBefore="8.41" redundancyAfter="0" />
+  <faultRecord time="70" type="timeover" object="job_cpu" isFalseAlarm="False" isSuccessRebuild="True" redundancyBefore="-1" redundancyAfter="-1" />
+  <faultRecord time="99.52" type="rebuild" object="host_1" isFalseAlarm="False" isSuccessRebuild="False" redundancyBefore="8.41" redundancyAfter="0" />
+  <reliability value="0" />
+</faultRecord>

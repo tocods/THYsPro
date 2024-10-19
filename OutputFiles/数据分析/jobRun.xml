@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobRun>
+  <Job name="Job3">
+    <RunningRecord status="Success" host="host2" start="0" end="3.97" duration="3.97" />
+  </Job>
+  <Job name="job1">
+    <RunningRecord status="Success" host="host2" start="0" end="8.12" duration="8.12">
+      <KernelRecord id="0" h2d="0" d2h="0" start="0" end="-1" duration="-1" />
+      <KernelRecord id="1" h2d="0" d2h="0" start="0" end="-1" duration="-1" />
+    </RunningRecord>
+    <RunningRecord status="Success" host="host2" start="10" end="15.52" duration="5.52">
+      <KernelRecord id="0" h2d="0" d2h="0" start="0" end="-1" duration="-1" />
+      <KernelRecord id="1" h2d="0" d2h="0" start="0" end="-1" duration="-1" />
+    </RunningRecord>
+    <RunningRecord status="Success" host="host2" start="20" end="25.52" duration="5.52">
+      <KernelRecord id="0" h2d="0" d2h="0" start="0" end="-1" duration="-1" />
+      <KernelRecord id="1" h2d="0" d2h="0" start="0" end="-1" duration="-1" />
+    </RunningRecord>
+  </Job>
+  <Job name="Job2">
+    <RunningRecord status="Success" host="host2" start="0" end="3.97" duration="3.97" />
+  </Job>
+</jobRun>

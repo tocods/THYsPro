@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobRun>
+  <Job name="job_timeout">
+    <RunningRecord status="Canceled" host="host_2" start="0" end="10" duration="10" />
+    <RunningRecord status="Canceled" host="host_2" start="10" end="20" duration="10" />
+    <RunningRecord status="Canceled" host="host_2" start="20" end="30" duration="10" />
+    <RunningRecord status="Canceled" host="host_2" start="30" end="40" duration="10" />
+    <RunningRecord status="Canceled" host="host_2" start="40" end="50" duration="10" />
+    <RunningRecord status="Canceled" host="host_2" start="50" end="60" duration="10" />
+    <RunningRecord status="Canceled" host="host_2" start="60" end="70" duration="10" />
+    <RunningRecord status="Canceled" host="host_2" start="70" end="80" duration="10" />
+    <RunningRecord status="Canceled" host="host_2" start="80" end="90" duration="10" />
+  </Job>
+  <Job name="job_period">
+    <RunningRecord status="Success" host="host_1" start="0" end="4" duration="4" />
+    <RunningRecord status="Success" host="host_1" start="10" end="14" duration="4" />
+    <RunningRecord status="Success" host="host_1" start="20" end="24" duration="4" />
+    <RunningRecord status="Success" host="host_1" start="30" end="34" duration="4" />
+    <RunningRecord status="Success" host="host_1" start="40" end="44" duration="4" />
+    <RunningRecord status="Success" host="host_1" start="50" end="54" duration="4" />
+    <RunningRecord status="Success" host="host_1" start="60" end="64" duration="4" />
+    <RunningRecord status="Success" host="host_1" start="70" end="74" duration="4" />
+    <RunningRecord status="Success" host="host_1" start="80" end="84" duration="4" />
+    <RunningRecord status="Success" host="host_1" start="90" end="94" duration="4" />
+  </Job>
+</jobRun>

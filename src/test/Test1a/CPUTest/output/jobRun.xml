@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobRun>
+  <Job name="job_cpu">
+    <RunningRecord status="Success" host="host_cpu" start="0" end="4" duration="4" />
+    <RunningRecord status="Success" host="host_cpu" start="10" end="14" duration="4" />
+    <RunningRecord status="Success" host="host_cpu" start="20" end="24" duration="4" />
+  </Job>
+</jobRun>

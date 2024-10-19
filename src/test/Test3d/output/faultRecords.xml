@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faultRecord>
+  <faultRecord time="10.32" type="rebuild" object="host_1" isFalseAlarm="True" isSuccessRebuild="True" redundancyBefore="9.8" redundancyAfter="9.6" />
+  <faultRecord time="27.29" type="rebuild" object="host_1" isFalseAlarm="True" isSuccessRebuild="True" redundancyBefore="9.8" redundancyAfter="9.6" />
+  <faultRecord time="42.61" type="rebuild" object="host_1" isFalseAlarm="True" isSuccessRebuild="True" redundancyBefore="9.8" redundancyAfter="9.6" />
+  <faultRecord time="53.77" type="rebuild" object="host_1" isFalseAlarm="True" isSuccessRebuild="True" redundancyBefore="9.8" redundancyAfter="9.6" />
+  <faultRecord time="76.25" type="rebuild" object="host_1" isFalseAlarm="True" isSuccessRebuild="True" redundancyBefore="9.8" redundancyAfter="9.6" />
+  <reliability value="1" />
+</faultRecord>

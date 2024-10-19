@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobRun>
+  <Job name="job2">
+    <RunningRecord status="Success" host="udp_cpu" start="0" end="4.04" duration="4.04" />
+    <RunningRecord status="Success" host="udp_cpu" start="10" end="14.14" duration="4.14" />
+    <RunningRecord status="Success" host="udp_cpu" start="20" end="24.24" duration="4.24" />
+  </Job>
+  <Job name="job1">
+    <RunningRecord status="Success" host="udp_cpu" start="0" end="5.15" duration="5.15">
+      <KernelRecord id="0" h2d="0.0063" d2h="0" start="4.05" end="5.14" duration="1.09" />
+      <KernelRecord id="1" h2d="0" d2h="0.0063" start="4.04" end="5.14" duration="1.1" />
+    </RunningRecord>
+    <RunningRecord status="Success" host="udp_cpu" start="10" end="15.25" duration="5.25">
+      <KernelRecord id="0" h2d="0.0063" d2h="0" start="14.15" end="15.24" duration="1.09" />
+      <KernelRecord id="1" h2d="0" d2h="0.0063" start="14.14" end="15.24" duration="1.1" />
+    </RunningRecord>
+    <RunningRecord status="Success" host="udp_cpu" start="20" end="25.35" duration="5.35">
+      <KernelRecord id="0" h2d="0.0063" d2h="0" start="24.25" end="25.34" duration="1.09" />
+      <KernelRecord id="1" h2d="0" d2h="0.0063" start="24.24" end="25.34" duration="1.1" />
+    </RunningRecord>
+  </Job>
+</jobRun>
