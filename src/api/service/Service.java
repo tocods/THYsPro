@@ -191,7 +191,7 @@ public class Service {
 
     private void outputXml(String path) throws IOException {
         Log.printLine("输出XML文件");
-        String cpuPath = path + "\\hostUtils.xml";
+        String cpuPath = path + "/hostUtils.xml";
         java.io.File file = new File(cpuPath);
         if(!file.exists()) {
             file.getParentFile().mkdir();
@@ -232,7 +232,7 @@ public class Service {
         // 把xml文件输出到指定的位置
         xmlOutput.output(doc, new FileOutputStream(file));
 
-        String faultRecordPath = path + "\\faultRecords.xml";
+        String faultRecordPath = path + "/faultRecords.xml";
         file = new File(faultRecordPath);
         if(!file.exists()) {
             file.getParentFile().mkdir();
@@ -291,7 +291,7 @@ public class Service {
      * @param jobs 任务队列
      */
     private String startShowResult(List<Cloudlet> jobs, String path) throws IOException {
-        String cpuPath = path + "\\jobRun.xml";
+        String cpuPath = path + "/jobRun.xml";
         java.io.File file = new File(cpuPath);
         if(!file.exists()) {
             file.getParentFile().mkdir();
@@ -439,7 +439,7 @@ public class Service {
         r = new Element("Run");
         r.setAttribute("time", dft.format(Parameters.endTime));
         doc.getRootElement().addContent(r);
-        file = new File(path + "\\hostFail.xml");
+        file = new File(path + "/hostFail.xml");
         xmlOutput.output(doc, new FileOutputStream(file));
 
 
@@ -460,7 +460,7 @@ public class Service {
             }
             doc.getRootElement().addContent(e);
         }
-        file = new File(path + "\\topoChange.xml");
+        file = new File(path + "/topoChange.xml");
         xmlOutput.output(doc, new FileOutputStream(file));
 
 
