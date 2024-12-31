@@ -22,6 +22,8 @@ public class NormalGenerator implements FaultGenerator{
 
     protected double shape = 0.0;
 
+    protected String type;
+
     public double[] concat(double[] first, double[] second) {
         double[] result = Arrays.copyOf(first, first.length + second.length);
         System.arraycopy(second, 0, result, first.length, second.length);
@@ -98,6 +100,16 @@ public class NormalGenerator implements FaultGenerator{
         for(double s: samples)
             ret += s;
         return ret / 10;
+    }
+
+    @Override
+    public String getFaultType() {
+        return type;
+    }
+
+    @Override
+    public void setFaultType(String t) {
+        type = t;
     }
 
 }

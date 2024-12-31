@@ -78,7 +78,7 @@ public abstract class GpuTaskScheduler {
 	 * @pre currentTime >= 0
 	 * @post $none
 	 */
-	public abstract double updateGpuTaskProcessing(double currentTime, List<Double> mipsShare);
+	public abstract double updateGpuTaskProcessing(double currentTime, List<Double> mipsShare, List<Double> i, List<Double> m);
 
 	/**
 	 * Receives a {@link GpuTask} to be executed in the {@link Vgpu} managed by this
@@ -419,14 +419,42 @@ public abstract class GpuTaskScheduler {
 		this.taskFailedList.clear();
 	}
 
-	public void jobFail(GpuJob job) {
+	public String jobFailType(GpuJob job) {
+		String type = "";
+		Boolean ifExist = false;
+		for(ResGpuTask cl: getTaskExecList()) {
+			GpuCloudlet cloudlet = cl.getGpuTask().getCloudlet();
+			if(job.getTasks().contains(cloudlet)) {
+				ifExist = true;
+				if(cl.failType != "")
+					type = cl.failType;
+				//taskFinish(cl);
+			}
+		}
+		for(ResGpuTask cl: getTaskWaitingList()) {
+			GpuCloudlet cloudlet = cl.getGpuTask().getCloudlet();
+			if(job.getTasks().contains(cloudlet)) {
+				ifExist = true;
+				if(cl.failType != "")
+					type = cl.failType;
+			}
+		}
+		if(ifExist && type == "")
+			return "FAIL";
+		return type;
+	}
+
+	public long jobFail(GpuJob job) {
+		long ret = 0;
 		//Log.printLine(CloudSim.clock() + ": " + job.getName() + " 进入超时流程");
 		List<ResGpuTask> toRemove = new ArrayList<>();
 		for(ResGpuTask cl: getTaskExecList()) {
 			GpuCloudlet cloudlet = cl.getGpuTask().getCloudlet();
 			if(job.getTasks().contains(cloudlet)) {
-				//Log.printLine(cl.getGpuTask().getName() + "超时");
+				Log.printLine(cl.getGpuTask().getName() + "超时");
 				toRemove.add(cl);
+				ret += cl.getDoneLen();
+				//taskFinish(cl);
 			}
 		}
 		getTaskExecList().removeAll(toRemove);
@@ -436,8 +464,10 @@ public abstract class GpuTaskScheduler {
 			if(job.getTasks().contains(cloudlet)) {
 				//Log.printLine(cl.getGpuTask().getName() + "超时");
 				toRemove.add(cl);
+				//taskFinish(cl);
 			}
 		}
 		getTaskWaitingList().removeAll(toRemove);
+		return ret;
 	}
 }

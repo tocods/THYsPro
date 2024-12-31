@@ -9,6 +9,7 @@
 package cloudsim;
 
 import cloudsim.core.CloudSim;
+import gpu.GpuCloudlet;
 import workflow.GpuJob;
 
 /**
@@ -100,7 +101,7 @@ public class ResCloudlet {
 		startTime = 0;
 		reservId = NOT_FOUND;
 		duration = 0;
-		ram = ((GpuJob)cloudlet).getRam();
+		ram = ((GpuCloudlet)cloudlet).getRam();
 		init();
 	}
 
@@ -451,7 +452,8 @@ public class ResCloudlet {
 	 */
 	public long getRemainingCloudletLength() {
 		long length = cloudlet.getCloudletTotalLength() * Consts.MILLION - cloudletFinishedSoFar;
-
+		//Log.printLine("总长度：" + cloudlet.getCloudletTotalLength() * Consts.MILLION);
+		//Log.printLine("已执行：" + cloudletFinishedSoFar);
 		// Remaining Cloudlet length can't be negative number.
 		if (length < 0) {
 			return 0;
@@ -488,6 +490,7 @@ public class ResCloudlet {
 		cloudlet.setCloudletFinishedSoFar(finished);
 	}
 
+
 	/**
 	 * Updates the length of cloudlet that has already been completed.
 	 * 
@@ -496,7 +499,9 @@ public class ResCloudlet {
 	 * @post $none
 	 */
 	public void updateCloudletFinishedSoFar(long miLength) {
+		//Log.printLine("原本已执行：" + cloudletFinishedSoFar);
 		cloudletFinishedSoFar += miLength;
+		//Log.printLine("现在已执行：" + cloudletFinishedSoFar);
 	}
 
 	/**

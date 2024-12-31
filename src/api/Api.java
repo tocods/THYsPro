@@ -2,6 +2,7 @@ package api;
 
 import api.service.Service;
 import api.util.ParseUtil;
+import cloudsim.Log;
 import gpu.GpuCloudlet;
 import gpu.power.PowerGpuHost;
 import cloudsim.ParameterException;

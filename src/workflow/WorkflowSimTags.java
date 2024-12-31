@@ -14,6 +14,8 @@ public class WorkflowSimTags {
 
     public final static int WORKFLOW_CLOUDLET_OUT = GpuCloudSimTags.GPU_TAG_LAST + 5;
 
-    public final static int WORKFLOW_TAG_LAST = GpuCloudSimTags.GPU_TAG_LAST + 5;
+    public final static int WORKFLOW_CLOUDLET_DEADLINE = GpuCloudSimTags.GPU_TAG_LAST + 6;
+
+    public final static int WORKFLOW_TAG_LAST = GpuCloudSimTags.GPU_TAG_LAST + 6;
 
 }

@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class Parameters {
 
-    public static Map<Host, FaultGenerator> host2FaultInject = new HashMap<>();
+    public static Map<Host, List<FaultGenerator>> host2FaultInject = new HashMap<>();
 
     public static Map<String, FaultGenerator> job2FaultInject = new HashMap<>();
 
@@ -20,9 +20,12 @@ public class Parameters {
 
     public static List<FaultRecord> faultRecordList = new ArrayList<>();
 
+    public static List<Topo> topos = new ArrayList<>();
+
     public static FaultInjector injector = null;
 
     public static int jobTotalRebuildNum = 0;
+
 
     public static int jobTotalRebuildSuccessTime = 0;
     public enum DistributionFamily {

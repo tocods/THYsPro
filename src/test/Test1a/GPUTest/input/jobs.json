@@ -23,6 +23,7 @@
             "requested_gddram_size": 800,
             "task_input_size": 100,
             "task_output_size": 100
-        }
+        },
+        "host": ""
     }
 ]

@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jobRun>
   <Job name="job_cpu">
-    <RunningRecord status="Canceled" host="host_1" start="0" end="10" duration="10" />
+    <RunningRecord status="Success" host="host_1" start="0" end="9.09" duration="9.09" />
     <RunningRecord status="Success" host="host_1" start="10" end="19.17" duration="9.17" />
     <RunningRecord status="Canceled" host="host_1" start="20" end="30" duration="10" />
     <RunningRecord status="Success" host="host_1" start="30" end="39.37" duration="9.37" />
     <RunningRecord status="Canceled" host="host_1" start="40" end="50" duration="10" />
     <RunningRecord status="Success" host="host_1" start="50" end="59.57" duration="9.57" />
-    <RunningRecord status="Canceled" host="host_1" start="60" end="70" duration="10" />
+    <RunningRecord status="Success" host="host_1" start="60" end="69.67" duration="9.67" />
     <RunningRecord status="Success" host="host_1" start="70" end="79.77" duration="9.77" />
     <RunningRecord status="Success" host="host_1" start="80" end="89.87" duration="9.87" />
+    <RunningRecord status="Success" host="host_1" start="90" end="99.97" duration="9.97" />
   </Job>
 </jobRun>

@@ -4,14 +4,10 @@
         "video_card_infos": [],
         "cpu_infos": [
             {
-                "cores": 8,
-                "mips": 100
-            },
-            {
-                "cores": 8,
-                "mips": 100
+                "cores": 4,
+                "mips": "6"
             }
         ],
-        "ram": 1024
+        "ram": 4
     }
 ]

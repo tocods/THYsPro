@@ -39,10 +39,14 @@ public class VideoCardInfo {
             List<Pe> blocks = new ArrayList<>();
             int SMNum = info.cores / info.corePerSM;
             int blockNum = SMNum * info.maxBlockPerSM;
-            double flopsPerSM = info.flopsPerCore * info.corePerSM;
+            double flopsPerSM = (info.flopsPerCore / info.cores) * info.corePerSM * 1000; //基准单位是GFLOPS，但输入文件里GPU的计算指标单位是TFLOPS
             double flopsPerBlock = flopsPerSM / info.maxBlockPerSM;
+            double iflopsPerSM = (info.intFlopsPerCore / info.cores) * info.corePerSM * 1000; //基准单位是GFLOPS，但输入文件里GPU的计算指标单位是TFLOPS
+            double iflopsPerBlock = iflopsPerSM / info.maxBlockPerSM;
+            double mflopsPerSM = (info.matrixFlopsPerCore / info.cores) * info.corePerSM * 1000; //基准单位是GFLOPS，但输入文件里GPU的计算指标单位是TFLOPS
+            double mflopsPerBlock = mflopsPerSM / info.maxBlockPerSM;
             for(int peId = 0; peId < blockNum; peId ++) {
-                Pe block = new Pe(peId, new PeProvisionerSimple(flopsPerBlock));
+                Pe block = new Pe(peId, new PeProvisionerSimple(flopsPerBlock), new PeProvisionerSimple(iflopsPerBlock), new PeProvisionerSimple(mflopsPerBlock));
                 blocks.add(block);
             }
             Pgpu pgpu = new Pgpu(gpuId, GridVideoCardTags.NVIDIA_K1_GPU_TYPE, blocks,
@@ -74,6 +78,8 @@ public class VideoCardInfo {
 
     public static class GPUInfo {
         public double flopsPerCore;
+        public double intFlopsPerCore;
+        public double matrixFlopsPerCore;
         public int gddram;
         public long bw;
 

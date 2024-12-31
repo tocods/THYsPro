@@ -48,6 +48,7 @@ public class GpuDatacenter extends Datacenter {
 			processGpuTaskSubmit(ev);
 			break;
 		case GpuCloudSimTags.GPU_CLOUDLET_RETURN:
+			Log.printLine("12121");
 			processGpuCloudletReturn(ev);
 			break;
 		case GpuCloudSimTags.VGPU_DATACENTER_EVENT:
@@ -77,6 +78,7 @@ public class GpuDatacenter extends Datacenter {
 	}
 
 	protected void processGpuCloudletReturn(SimEvent ev) {
+		Log.printLine("fffff");
 		GpuCloudlet cloudlet = (GpuCloudlet) ev.getData();
 		sendNow(cloudlet.getUserId(), CloudSimTags.CLOUDLET_RETURN, cloudlet);
 		notifyGpuTaskCompletion(cloudlet.getGpuTask());
@@ -206,7 +208,7 @@ public class GpuDatacenter extends Datacenter {
 
 				VideoCard videoCard = vgpu.getVideoCard();
 				vgpu.updateGpuTaskProcessing(CloudSim.clock(),
-						videoCard.getVgpuScheduler().getAllocatedMipsForVgpu(vgpu));
+						videoCard.getVgpuScheduler().getAllocatedMipsForVgpu(vgpu), null, null);
 			}
 		}
 

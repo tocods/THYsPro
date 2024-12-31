@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hostUtilization>
   <Util time="0">
-    <Host name="host_cpu" cpuUtilization="0.06" ramUtilization="0.1" />
+    <Host name="host_cpu" cpuUtilization="0.5" ramUtilization="0.05" />
   </Util>
   <Util time="1">
-    <Host name="host_cpu" cpuUtilization="0.06" ramUtilization="0.1" />
+    <Host name="host_cpu" cpuUtilization="0.5" ramUtilization="0.05" />
   </Util>
   <Util time="2">
-    <Host name="host_cpu" cpuUtilization="0.06" ramUtilization="0.1" />
+    <Host name="host_cpu" cpuUtilization="0" ramUtilization="0" />
   </Util>
   <Util time="3">
     <Host name="host_cpu" cpuUtilization="0" ramUtilization="0" />
@@ -31,13 +31,13 @@
     <Host name="host_cpu" cpuUtilization="0" ramUtilization="0" />
   </Util>
   <Util time="10">
-    <Host name="host_cpu" cpuUtilization="0.06" ramUtilization="0.1" />
+    <Host name="host_cpu" cpuUtilization="0.5" ramUtilization="0.05" />
   </Util>
   <Util time="11">
-    <Host name="host_cpu" cpuUtilization="0.06" ramUtilization="0.1" />
+    <Host name="host_cpu" cpuUtilization="0" ramUtilization="0" />
   </Util>
   <Util time="12">
-    <Host name="host_cpu" cpuUtilization="0.06" ramUtilization="0.1" />
+    <Host name="host_cpu" cpuUtilization="0" ramUtilization="0" />
   </Util>
   <Util time="13">
     <Host name="host_cpu" cpuUtilization="0" ramUtilization="0" />
@@ -61,15 +61,6 @@
     <Host name="host_cpu" cpuUtilization="0" ramUtilization="0" />
   </Util>
   <Util time="20">
-    <Host name="host_cpu" cpuUtilization="0.06" ramUtilization="0.1" />
-  </Util>
-  <Util time="21">
-    <Host name="host_cpu" cpuUtilization="0.06" ramUtilization="0.1" />
-  </Util>
-  <Util time="22">
-    <Host name="host_cpu" cpuUtilization="0.06" ramUtilization="0.1" />
-  </Util>
-  <Util time="23">
-    <Host name="host_cpu" cpuUtilization="0" ramUtilization="0" />
+    <Host name="host_cpu" cpuUtilization="0.5" ramUtilization="0.05" />
   </Util>
 </hostUtilization>

@@ -6,6 +6,7 @@
       "mttr_type": "Normal",
       "mttr_scale": 10.0,
       "mttr_shape": 10.0,
-      "aim": "host_1"
+      "aim": "host_1",
+      "type": "gpu"
     }
 ]

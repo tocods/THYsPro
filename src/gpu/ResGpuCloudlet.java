@@ -2,6 +2,7 @@ package gpu;
 
 import cloudsim.Log;
 import cloudsim.ResCloudlet;
+import cloudsim.UtilizationModelFull;
 import workflow.GpuJob;
 
 import java.util.ArrayList;
@@ -9,7 +10,11 @@ import java.util.List;
 
 public class ResGpuCloudlet extends ResCloudlet {
 
-	public Boolean ifGPU = true;
+	public Boolean ifGPU = false;
+
+	public Boolean ifFromGpu = false;
+
+	public String type = "";
 
 	private final List<GpuTask> gpuTasks;
 	private final List<GpuTask> remainGpuTasks;
@@ -27,11 +32,22 @@ public class ResGpuCloudlet extends ResCloudlet {
 				continue;
 			this.gpuTasks.add(cl.getGpuTask());
 			this.remainGpuTasks.add(cl.getGpuTask());
+			Log.printLine("将" + cl.getGpuTask().getName() + "归属于" + cloudlet.getName() + "其ID为：" + cloudlet.getCloudletId() );
 			cl.getGpuTask().setResId(getCloudletId());
 		}
+		ifGPU = ((GpuJob) cloudlet).ifHasKernel();
 		//this.gpuTasks = new ArrayList<>();
 		//gpuTasks.add(gpuTask);
 	}
+
+	public ResGpuCloudlet(GpuTask task, GpuCloudlet cl) {
+		super(cl);
+		//Log.printLine("set: " + task.getThreadsPerBlock());
+		this.gpuTask = task;
+		this.remainGpuTasks = new ArrayList<>();
+		this.gpuTasks = new ArrayList<>();
+		this.ifFromGpu = true;
+    }
 
 	public ResGpuCloudlet(GpuCloudlet cloudlet, long startTime, int duration, int reservID) {
 		super(cloudlet, startTime, duration, reservID);
@@ -45,6 +61,7 @@ public class ResGpuCloudlet extends ResCloudlet {
 			this.remainGpuTasks.add(cl.getGpuTask());
 			cl.getGpuTask().setResId(getCloudletId());
 		}
+		ifGPU = !this.gpuTasks.isEmpty();
 	}
 	
 	public GpuCloudlet finishCloudlet() {

@@ -2,9 +2,12 @@ package gpu;
 
 import cloudsim.*;
 import cloudsim.core.CloudSim;
+import faulttolerant.FaultRecord;
 import workflow.GpuJob;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -31,22 +34,50 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 		setGpuTaskList(new ArrayList<GpuTask>());
 	}
 
-	@Override
-	public double updateVmProcessing(double currentTime, List<Double> mipsShare) {
+
+	public double updateJobProcessing(double currentTime, List<Double> mipsShare, List<Double> imipsShare, List<Double> mmipsShare) {
 		setCurrentMipsShare(mipsShare);
 		double timeSpam = currentTime - getPreviousTime();
-		//Log.printLine("有" + getCloudletExecList().size() + "个任务正在执行队列");
+//		Log.printLine("有" + getCloudletExecList().size() + "个任务正在执行队列");
+//		Log.printLine("有" + getCloudletPausedList().size() + "个任务正在等待队列");
+		List<ResCloudlet> toRemoves = new ArrayList<>();
+		HashMap<String, Boolean> hasJob = new HashMap<>();
+		for (ResCloudlet rcl : getCloudletExecList()) {
+			ResGpuCloudlet rgcl = (ResGpuCloudlet) rcl;
+			if(!rgcl.ifFromGpu)
+				toRemoves.add(rcl);
+			if(hasJob.containsKey(((GpuCloudlet)rgcl.getCloudlet()).getName())) {
+				toRemoves.add(rcl);
+			}
+			hasJob.put(((GpuCloudlet)rgcl.getCloudlet()).getName(), true);
+		}
+		getCloudletExecList().removeAll(toRemoves);
+		toRemoves = new ArrayList<>();
+		hasJob = new HashMap<>();
+		for (ResCloudlet rcl : getCloudletPausedList()) {
+			ResGpuCloudlet rgcl = (ResGpuCloudlet) rcl;
+			if(hasJob.containsKey(((GpuCloudlet)rgcl.getCloudlet()).getName())) {
+				toRemoves.add(rcl);
+			}
+			hasJob.put(((GpuCloudlet)rgcl.getCloudlet()).getName(), true);
+		}
+		getCloudletPausedList().removeAll(toRemoves);
 		for (ResCloudlet rcl : getCloudletExecList()) {
 			if(rcl.getRemainingCloudletLength() == rcl.getCloudletTotalLength()) {
-				double spam = currentTime - rcl.getExecStartTime();
-				rcl.updateCloudletFinishedSoFar((long) (getCapacity(mipsShare) * spam * rcl.getNumberOfPes() * Consts.MILLION));
-			}else
-				rcl.updateCloudletFinishedSoFar((long) (getCapacity(mipsShare) * timeSpam * rcl.getNumberOfPes() * Consts.MILLION));
-			//Log.printLine(CloudSim.clock() + ": 任务被执行" + "间隔时间： " + timeSpam + " 剩余长度：" + rcl.getRemainingCloudletLength() + " 总长度：" + rcl.getCloudletTotalLength());
+				timeSpam = currentTime - rcl.getExecStartTime();
+			}
+			ResGpuCloudlet cl = (ResGpuCloudlet)rcl;
+			//Log.printLine(((GpuCloudlet)cl.getCloudlet()).getName() + "将被执行");
+			double cap = getCapacity(mipsShare);
+			if(cl.getGpuTask().calcuType == 1)
+				cap = getCapacity(imipsShare);
+			if(cl.getGpuTask().calcuType == 2)
+				cap = getCapacity(mmipsShare);
+			rcl.updateCloudletFinishedSoFar((long) (cap * timeSpam * rcl.getNumberOfPes() * Consts.MILLION));
+			//Log.printLine(CloudSim.clock() + ": 任务被执行， 计算能力： " + (cap  * rcl.getNumberOfPes()) + "间隔时间： " + timeSpam + " 剩余长度：" + rcl.getRemainingCloudletLength() + " 总长度：" + rcl.getCloudletTotalLength());
 		}
 
 		if (getCloudletExecList().size() == 0) {
-
 			setPreviousTime(currentTime);
 			return 0.0;
 		}
@@ -68,7 +99,7 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 		double ramInUse = 0.0;
 		toRemove = new ArrayList<>();
 		for(ResCloudlet cl: getCloudletExecList()) {
-			ramInUse += ((GpuJob)cl.getCloudlet()).getRam();
+			ramInUse += ((GpuCloudlet)cl.getCloudlet()).getRam();
 		}
 		double ramAvailable = ram - ramInUse;
 		for(ResCloudlet rcl: getCloudletWaitingList()) {
@@ -78,6 +109,8 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 			}
 		}
 		getCloudletWaitingList().removeAll(toRemove);
+//		if(!toRemove.isEmpty())
+//			Log.printLine("lalalaalaa");
 		getCloudletExecList().addAll(toRemove);
 
 		// estimate finish time of cloudlets
@@ -122,8 +155,10 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 		if(ramAvailable < ((GpuCloudlet) cloudlet).getRam()) {
 			getCloudletWaitingList().add(rcl);
 		}
-		else
+		else {
+			//Log.printLine("bbbb");
 			getCloudletExecList().add(rcl);
+		}
 
 
 		// use the current capacity to estimate the extra amount of
@@ -136,38 +171,116 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 		return (length + addLength) / getCapacity(getCurrentMipsShare());
 	}
 
+	public double taskSubmit(GpuTask gt) {
+		Log.printLine(gt.getName() + "被提交: " + gt.getRequestedGddramSize() + " resID: " + gt.getResId());
+//		for(ResCloudlet cl: getCloudletExecList()) {
+//			ResGpuCloudlet rcl = (ResGpuCloudlet) cl;
+//			Log.printLine("存在：" + ((GpuCloudlet)rcl.getCloudlet()).getName());
+//		}
+		GpuCloudlet cc = new GpuCloudlet(gt.getTaskId(), gt.getTaskTotalLength(),gt.getThreadsPerBlock() * gt.getNumberOfBlocks(), 0,gt.getTaskOutputSize(),
+				new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull(), gt, false, gt.getRequestedGddramSize());
+		cc.setResourceParameter(0, 0,0);
+		cc.setName(gt.getName() + "_代理");
+		Log.printLine(cc.getRam() + "被需要");
+		ResGpuCloudlet toAdd = new ResGpuCloudlet(gt, cc);
+		toAdd.setCloudletStatus(Cloudlet.INEXEC);
+		for (ResCloudlet rcl : getCloudletPausedList()) {
+			ResGpuCloudlet rgcl = (ResGpuCloudlet) rcl;
+			if (gt.isThisResCloudlet(rgcl)) {
+				//getCloudletPausedList().remove(rgcl);
+				//rgcl.setCloudletStatus(Cloudlet.INEXEC);
+				double ramInUse = 0.0;
+				for(ResCloudlet cl: getCloudletExecList()) {
+					ramInUse += ((GpuCloudlet)cl.getCloudlet()).getRam();
+				}
+				double ramAvailable = ram - ramInUse;
+				Log.printLine(ramAvailable + "可以用");
+				if(ramAvailable < cc.getRam()) {
+					//Log.printLine("aaa " + ramAvailable + " < " + ((GpuCloudlet) cloudlet).getRam());
+					Log.printLine("内存不足");
+					toAdd.type = "RAM";
+					getCloudletWaitingList().add(toAdd);
+				}
+				else {
+					//Log.printLine("3 " + ((GpuCloudlet)toAdd.getCloudlet()).getName());
+					getCloudletExecList().add(toAdd);
+				}
+				break;
+			}
+		}
+//		Log.printLine("待执行长度：" + toAdd.getCloudletTotalLength());
+//		Log.printLine("计算能力：" + (getCapacity(getCurrentMipsShare()) * toAdd.getNumberOfPes()));
+//		Log.printLine("任务需求核心：" + toAdd.getNumberOfPes());
+		return toAdd.getCloudletTotalLength() / (getCapacity(getCurrentMipsShare()) * toAdd.getNumberOfPes());
+	}
+
 	@Override
 	public double cloudletSubmit(Cloudlet cloudlet, double fileTransferTime) {
 		ResGpuCloudlet rcl = new ResGpuCloudlet((GpuCloudlet) cloudlet);
-		//Log.printLine(((GpuCloudlet) cloudlet).getName() + "被提交到CPU的任务调度器上");
+		Log.printLine(CloudSim.clock() + ":" + ((GpuCloudlet) cloudlet).getName() + "被提交到CPU的任务调度器上 " + getCloudletPausedList().size());
+		Log.printLine("！有" + getCloudletExecList().size() + "个任务正在执行队列");
+		Log.printLine("！有" + getCloudletPausedList().size() + "个任务正在等待队列");
+//		for(ResCloudlet cl: getCloudletExecList()) {
+//			ResGpuCloudlet rcl2 = (ResGpuCloudlet) cl;
+//			Log.printLine("!存在：" + ((GpuCloudlet)rcl2.getCloudlet()).getName());
+//		}
 		rcl.setCloudletStatus(Cloudlet.INEXEC);
 		for (int i = 0; i < cloudlet.getNumberOfPes(); i++) {
 			rcl.setMachineAndPeId(0, i);
 		}
-		double ramInUse = 0.0;
-		for(ResCloudlet cl: getCloudletExecList()) {
-			ramInUse += ((GpuJob)cl.getCloudlet()).getRam();
-		}
-		double ramAvailable = ram - ramInUse;
-		if(ramAvailable < ((GpuCloudlet) cloudlet).getRam()) {
-			//Log.printLine("aaa " + ramAvailable + " < " + ((GpuCloudlet) cloudlet).getRam());
-			getCloudletWaitingList().add(rcl);
-		}
-		else
-			getCloudletExecList().add(rcl);
-
-		// use the current capacity to estimate the extra amount of
-		// time to file transferring. It must be added to the cloudlet length
-		double extraSize = getCapacity(getCurrentMipsShare()) * fileTransferTime;
-		long length = (long) (cloudlet.getCloudletLength() + extraSize);
-		cloudlet.setCloudletLength(length);
-
-		return cloudlet.getCloudletLength() / getCapacity(getCurrentMipsShare());
+		rcl.setCloudletStatus(GpuCloudlet.PAUSED);
+		getCloudletPausedList().add(rcl);
+		GpuTask gt = rcl.getRemainGpuTasks().get(0);
+		getGpuTaskList().add(gt);
+//		Log.printLine("！有" + getCloudletExecList().size() + "个任务正在执行队列");
+//		Log.printLine("！有" + getCloudletPausedList().size() + "个任务正在等待队列");
+		return -1;
+//		double ramInUse = 0.0;
+//		for(ResCloudlet cl: getCloudletExecList()) {
+//			ramInUse += ((GpuJob)cl.getCloudlet()).getRam();
+//		}
+//		double ramAvailable = ram - ramInUse;
+//		if(ramAvailable < ((GpuCloudlet) cloudlet).getRam()) {
+//			//Log.printLine("aaa " + ramAvailable + " < " + ((GpuCloudlet) cloudlet).getRam());
+//			getCloudletWaitingList().add(rcl);
+//		}
+//		else
+//			getCloudletExecList().add(rcl);
+//
+//		// use the current capacity to estimate the extra amount of
+//		// time to file transferring. It must be added to the cloudlet length
+//		double extraSize = getCapacity(getCurrentMipsShare()) * fileTransferTime;
+//		long length = (long) (cloudlet.getCloudletLength() + extraSize);
+//		cloudlet.setCloudletLength(length);
+//		if(cloudlet.getCloudletLength() == 0) {
+//			getCloudletPausedList().add(cloudlet);
+//			return -1;
+//		}
+//		return cloudlet.getCloudletLength() / getCapacity(getCurrentMipsShare());
 	}
 
 	@Override
 	public void cloudletFinish(ResCloudlet rcl) {
 		ResGpuCloudlet rgcl = (ResGpuCloudlet) rcl;
+		if(rgcl.ifFromGpu) {
+			GpuTask task = rgcl.getGpuTask();
+			for (ResCloudlet cl : getCloudletPausedList()) {
+				ResGpuCloudlet rgcl2 = (ResGpuCloudlet) cl;
+				if (task.isThisResCloudlet(rgcl2)) {
+					task.setFinishTime(CloudSim.clock());
+					if(!rgcl2.finishGpuTasks(task)) {
+						getGpuTaskList().add(rgcl2.getRemainGpuTasks().get(0));
+						Log.printLine( task.getName() + " 执行结束，接下来执行： " + rgcl2.getRemainGpuTasks().get(0).getName());
+					}else {
+						Log.printLine(((GpuCloudlet)rgcl2.getCloudlet()).getName() + "所有内核执行完成");
+						super.cloudletFinish(rgcl2);
+						getCloudletPausedList().remove(cl);
+						return;
+					}
+				}
+			}
+			return;
+		}
 		if (!rgcl.hasGpuTask() || !rgcl.ifGPU) {
 			super.cloudletFinish(rcl);
 			//Log.printLine(((GpuCloudlet)rcl.getCloudlet()).getName() + "不包含要GPU执行的内核");
@@ -216,11 +329,16 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 			ResGpuCloudlet rgcl = (ResGpuCloudlet) rcl;
 			if (gt.isThisResCloudlet(rgcl)) {
 				if(rgcl.finishGpuTasks(gt)) {
+
 					//Log.printLine("a rescloudlet finish");
 					//rgcl.setCloudletStatus(GpuCloudlet.SUCCESS);
 					//rgcl.finalizeCloudlet();
 					super.cloudletFinish(rgcl);
 					toRemove = rgcl;
+					Log.printLine(((GpuCloudlet)rgcl.getCloudlet()).getName() + "所有内核执行完成");
+				}else {
+					Log.printLine(gt.getName() + " 执行结束，接下来执行： " + rgcl.getRemainGpuTasks().get(0).getName());
+					getGpuTaskList().add(rgcl.getRemainGpuTasks().get(0));
 				}
 			}
 		}

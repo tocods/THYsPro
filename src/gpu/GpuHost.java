@@ -1,9 +1,11 @@
 package gpu;
 
+import cloudsim.core.CloudSim;
 import gpu.allocation.VideoCardAllocationPolicy;
 import cloudsim.*;
 import cloudsim.provisioners.BwProvisioner;
 import cloudsim.provisioners.RamProvisioner;
+import org.apache.commons.compress.archivers.dump.DumpArchiveEntry;
 import workflow.GpuJob;
 
 import java.util.ArrayList;
@@ -27,6 +29,12 @@ public class GpuHost extends Host {
 
 	/** video card allocation policy */
 	private VideoCardAllocationPolicy videoCardAllocationPolicy;
+
+	private Double failTime = 0.0;
+
+	private List<Double> failTimes = new ArrayList<>();
+
+	private Double lastFailTime = 0.0;
 
 	/**
 	 * 
@@ -79,8 +87,22 @@ public class GpuHost extends Host {
 		return smallerTime;
 	}
 
-	public void hostFail() {
-		getCloudletScheduler().hostFail();
+	public Double getFailTime() {
+		return failTime;
+	}
+
+	public void addFailTime() {
+		this.failTime += CloudSim.clock() - lastFailTime;
+		this.failTimes.add(CloudSim.clock() - lastFailTime);
+	}
+
+	public List<Double> getFailTimes() {
+		return failTimes;
+	}
+
+	public void hostFail(Boolean ifGpu) {
+		lastFailTime = CloudSim.clock();
+		getCloudletScheduler().hostFail(ifGpu);
 		if(isGpuEquipped()) {
 			for(VideoCard videoCard: getVideoCardAllocationPolicy().getVideoCards()) {
 				for(Pgpu pgpu: videoCard.getPgpuList()) {
@@ -90,15 +112,33 @@ public class GpuHost extends Host {
 		}
 	}
 
-	public void jobFail(GpuJob job) {
-		GpuJob job2Del = getCloudletScheduler().jobFail(job);
+	public String jobFailType(GpuJob job) {
+		String ret = getCloudletScheduler().jobFailType(job);
 		if(isGpuEquipped()) {
 			for(VideoCard videoCard: getVideoCardAllocationPolicy().getVideoCards()) {
 				for(Pgpu pgpu: videoCard.getPgpuList()) {
-					pgpu.getGpuTaskScheduler().jobFail(job);
+					String type = pgpu.getGpuTaskScheduler().jobFailType(job);
+					if(ret == "" && type != "") {
+						ret = type;
+					}
 				}
 			}
 		}
+		if(ret == "") {
+			ret = "FAIL";
+		}
+		return ret;
+	}
+
+	public long jobFail(GpuJob job) {
+		long rets = getCloudletScheduler().jobFail(job);
+		if(isGpuEquipped()) {
+			for(VideoCard videoCard: getVideoCardAllocationPolicy().getVideoCards()) {
+				for(Pgpu pgpu: videoCard.getPgpuList()) {
+					rets += pgpu.getGpuTaskScheduler().jobFail(job);
+				}
+			}
+		}return rets;
 	}
 	public void notifyGpuTaskCompletion(GpuTask t) {
 		//Log.printLine("aaasa");
@@ -133,7 +173,7 @@ public class GpuHost extends Host {
 			// Update resident vGPUs
 			for (Vgpu vgpu : getVideoCardAllocationPolicy().getVgpuVideoCardMap().keySet()) {
 				double time = vgpu.updateGpuTaskProcessing(currentTime, getVideoCardAllocationPolicy()
-						.getVgpuVideoCardMap().get(vgpu).getVgpuScheduler().getAllocatedMipsForVgpu(vgpu));
+						.getVgpuVideoCardMap().get(vgpu).getVgpuScheduler().getAllocatedMipsForVgpu(vgpu), null, null);
 				if (time > 0.0 && time < smallerTime) {
 					smallerTime = time;
 				}
@@ -244,12 +284,13 @@ public class GpuHost extends Host {
 
 	@Override
 	public double submitJob(GpuJob job) {
-		// 部署了GPU，正常提交任务
-		if(isGpuEquipped()) {
-			return getCloudletScheduler().cloudletSubmit(job);
-		}
-		// 未部署GPU，本该由GPU执行的部分只能有CPU来执行
-		return ((GpuCloudletSchedulerTimeShared)getCloudletScheduler()).cloudletSubmitWithoutGPU(job, 0);
+//		// 部署了GPU，正常提交任务
+//		if(isGpuEquipped()) {
+//			return getCloudletScheduler().cloudletSubmit(job);
+//		}
+//		// 未部署GPU，本该由GPU执行的部分只能有CPU来执行
+//		return ((GpuCloudletSchedulerTimeShared)getCloudletScheduler()).cloudletSubmitWithoutGPU(job, 0);
+		return getCloudletScheduler().cloudletSubmit(job);
 	}
 
 	public boolean isIdle() {

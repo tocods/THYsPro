@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jobRun>
-  <Job name="job_cpu">
-    <RunningRecord status="Success" host="host_cpu" start="0" end="4" duration="4" />
-    <RunningRecord status="Success" host="host_cpu" start="10" end="14" duration="4" />
-    <RunningRecord status="Success" host="host_cpu" start="20" end="24" duration="4" />
+  <Job name="job_cpu_2">
+    <RunningRecord status="Success" host="host_cpu" start="0" end="2.02" duration="2.02" />
+    <RunningRecord status="Success" host="host_cpu" start="10" end="11.98" duration="1.98" />
+    <RunningRecord status="Success" host="host_cpu" start="20" end="21.98" duration="1.98" />
+  </Job>
+  <Job name="job_cpu_1">
+    <RunningRecord status="Success" host="host_cpu" start="0" end="2.02" duration="2.02" />
+    <RunningRecord status="Success" host="host_cpu" start="10" end="11.98" duration="1.98" />
+    <RunningRecord status="Success" host="host_cpu" start="20" end="21.98" duration="1.98" />
   </Job>
 </jobRun>

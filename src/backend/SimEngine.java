@@ -9,11 +9,13 @@ import cloudsim.*;
 import cloudsim.power.models.PowerModel;
 import cloudsim.provisioners.BwProvisionerSimple;
 import cloudsim.provisioners.RamProvisionerSimple;
+import faulttolerant.faultGenerator.FaultGenerator;
 import gpu.*;
 import gpu.allocation.VideoCardAllocationPolicy;
 import gpu.allocation.VideoCardAllocationPolicyNull;
 import gpu.power.PowerGpuHost;
 import gpu.power.models.GpuHostPowerModelLinear;
+import lombok.Setter;
 import workflow.GpuJob;
 import workflow.Parameters;
 
@@ -28,6 +30,7 @@ public class SimEngine {
 
     private List<GpuCloudlet> jobs;
 
+    @Setter
     private Parameters.JobAllocationAlgorithm algorithm;
 
     private Api api;
@@ -71,8 +74,6 @@ public class SimEngine {
         String mess = parser.parseHostXml(new File(path));
         for(HostInfo hostInfo: parser.getHostInfos()) {
             ret = addHost(hostInfo.videoCardInfos, hostInfo.cpuInfos, hostInfo.ram, hostInfo.name);
-            if(hostInfo.generator != null)
-                faulttolerant.Parameters.host2FaultInject.put(hosts.get(hosts.size() - 1), hostInfo.generator);
             if(ret.ifError()) {
                 Log.printLine(ret.getMessage());
                 hosts = new ArrayList<>();
@@ -89,8 +90,6 @@ public class SimEngine {
         List<HostInfo> hostInfos = jsonParser.parseHosts(path);
         for(HostInfo hostInfo: hostInfos) {
             ret = addHost(hostInfo.videoCardInfos, hostInfo.cpuInfos, hostInfo.ram, hostInfo.name);
-            if(hostInfo.generator != null)
-                faulttolerant.Parameters.host2FaultInject.put(hosts.get(hosts.size() - 1), hostInfo.generator);
             if(ret.ifError()) {
                 Log.printLine(ret.getMessage());
                 hosts = new ArrayList<>();
@@ -157,14 +156,17 @@ public class SimEngine {
             for(Host host: hosts)
                 if(host.getName().equals(faultInfo.aim))
                     h = host;
-            if(h != null)
-                faulttolerant.Parameters.host2FaultInject.put(h, faultInfo.tran2Generator());
+            if(h != null) {
+                if(faulttolerant.Parameters.host2FaultInject.containsKey(h))
+                    faulttolerant.Parameters.host2FaultInject.get(h).add(faultInfo.tran2Generator());
+                else {
+                    List<FaultGenerator> generators = new ArrayList<>();
+                    generators.add(faultInfo.tran2Generator());
+                    faulttolerant.Parameters.host2FaultInject.put(h, generators);
+                }
+            }
         }
         return Result.success("");
-    }
-
-    public void setAlgorithm(Parameters.JobAllocationAlgorithm algorithm) {
-        this.algorithm = algorithm;
     }
 
     public Result start(String outputPath) {
@@ -213,6 +215,10 @@ public class SimEngine {
                 videoCardAllocationPolicy, powerModel);
         GpuCloudletSchedulerTimeShared cloudletSchedulerTimeShared = new GpuCloudletSchedulerTimeShared();
         cloudletSchedulerTimeShared.setRam(ram * 1024);
+        List<Double> mips = new ArrayList<>();
+        for(Pe pe : peList)
+            mips.add(Double.valueOf((Integer)(pe.getMips())));
+        cloudletSchedulerTimeShared.updateJobProcessing(0, mips, mips, mips);
         newHost.setCloudletScheduler(cloudletSchedulerTimeShared);
 
         newHost.setName(name);
@@ -226,7 +232,17 @@ public class SimEngine {
      */
     public Result addJob(JobInfo jobInfo) {
         GpuJob job = jobInfo.tran2Job(cloudletId, taskId, gpuId);
-        Log.printLine(job.getName());
+        Log.printLine(jobInfo.host);
+        if(!jobInfo.host.equals("")) {
+            for(Host host: hosts) {
+                if(host.getName().equals(jobInfo.host)) {
+                    job.setVmId(host.getId());
+                    job.setHost(host);
+                    Log.printLine("I found it");
+                }
+            }
+        }
+
         jobs.add(job);
         cloudletId ++;
         taskId += job.getTasks().size();

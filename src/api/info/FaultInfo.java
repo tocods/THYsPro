@@ -21,12 +21,14 @@ public class FaultInfo {
 
     public String mttrShape;
 
+    public String type;
+
     public String print() {
         AsciiTable at = new AsciiTable();
         at.addRule();
-        at.addRow("aim", "MTTF", "scale", "shape", "MTTR", "scale", "shape");
+        at.addRow("aim", "MTTF", "scale", "shape", "MTTR", "scale", "shape", "hardware");
         at.addRule();
-        at.addRow(aim, mttfType, mttfScale, mttfShape, mttrType, mttrScale, mttrShape);
+        at.addRow(aim, mttfType, mttfScale, mttfShape, mttrType, mttrScale, mttrShape, type);
         at.addRule();
         at.setTextAlignment(TextAlignment.CENTER);
         Log.printLine(at.render());
@@ -54,6 +56,7 @@ public class FaultInfo {
         }
         ret.initSamples(Double.parseDouble(mttfScale), Double.parseDouble(mttfShape));
         ret.initRepair(Double.parseDouble(mttrScale), Double.parseDouble(mttrShape));
+        ret.setFaultType(type);
         return ret;
     }
 }

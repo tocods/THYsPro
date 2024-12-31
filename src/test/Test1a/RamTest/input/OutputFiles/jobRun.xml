@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobRun>
+  <Job name="job_ram_2">
+    <RunningRecord status="Success" host="host_ram" start="0" end="2.02" duration="2.02" />
+    <RunningRecord status="Success" host="host_ram" start="10" end="11.98" duration="1.98" />
+    <RunningRecord status="Success" host="host_ram" start="20" end="21.98" duration="1.98" />
+    <RunningRecord status="Success" host="host_ram" start="30" end="31.98" duration="1.98" />
+    <RunningRecord status="Success" host="host_ram" start="40" end="41.98" duration="1.98" />
+    <RunningRecord status="Success" host="host_ram" start="50" end="51.98" duration="1.98" />
+    <RunningRecord status="Success" host="host_ram" start="60" end="61.98" duration="1.98" />
+    <RunningRecord status="Success" host="host_ram" start="70" end="71.98" duration="1.98" />
+    <RunningRecord status="Success" host="host_ram" start="80" end="81.98" duration="1.98" />
+    <RunningRecord status="Success" host="host_ram" start="90" end="91.98" duration="1.98" />
+  </Job>
+  <Job name="job_ram_1">
+    <RunningRecord status="Success" host="host_ram" start="0" end="4.02" duration="4.02" />
+    <RunningRecord status="Success" host="host_ram" start="10" end="13.98" duration="3.98" />
+    <RunningRecord status="Success" host="host_ram" start="20" end="23.98" duration="3.98" />
+    <RunningRecord status="Success" host="host_ram" start="30" end="33.98" duration="3.98" />
+    <RunningRecord status="Success" host="host_ram" start="40" end="43.98" duration="3.98" />
+    <RunningRecord status="Success" host="host_ram" start="50" end="53.98" duration="3.98" />
+    <RunningRecord status="Success" host="host_ram" start="60" end="63.98" duration="3.98" />
+    <RunningRecord status="Success" host="host_ram" start="70" end="73.98" duration="3.98" />
+    <RunningRecord status="Success" host="host_ram" start="80" end="83.98" duration="3.98" />
+    <RunningRecord status="Success" host="host_ram" start="90" end="93.98" duration="3.98" />
+  </Job>
+</jobRun>

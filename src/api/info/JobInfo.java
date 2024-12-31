@@ -19,6 +19,8 @@ public class JobInfo {
 
     public double period = 0.0;
 
+    public double deadline;
+
     public String name;
 
     public CPUTaskInfo cpuTask;
@@ -27,6 +29,8 @@ public class JobInfo {
 
     public FaultGenerator generator = null;
 
+    public String host;
+
     public GpuJob tran2Job(int id, int taskIdStart, int gpuIdStart) {
         if(gpuTask == null || gpuTask.kernels.isEmpty()) {
             List<GpuCloudlet> tasks = new ArrayList<>();
@@ -34,32 +38,40 @@ public class JobInfo {
             tasks.add(gpuCloudlet);
             BasicClustering clustering = new BasicClustering();
             GpuJob job = clustering.addTasks2Job(tasks);
+            job.setNumberOfPes(gpuCloudlet.getNumberOfPes());
             job.setName(name);
             job.setCloudletId(id);
             job.setPeriod(period);
             return job;
         }
         List<GpuCloudlet> tasks = new ArrayList<>();
-        List<GpuTask> kernels = gpuTask.tran2GpuTask(id, gpuIdStart);
+        List<GpuTask> kernels = gpuTask.tran2GpuTask(id, gpuIdStart, cpuTask.ram);
         int kernelNum = kernels.size();
         for(int i = 0; i < kernelNum; i++) {
-            if(i == 0) {
-                GpuCloudlet gpuCloudlet = cpuTask.tran2Cloudlet(taskIdStart, kernels.get(i));
-                tasks.add(gpuCloudlet);
-            }else {
-                int taskId = taskIdStart + i;
-                GpuCloudlet gpuCloudlet = new GpuCloudlet(taskId, 0, 0, 0, 0,
-                        new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull(), kernels.get(i), false);
-                gpuCloudlet.setName("Task_" + taskId + "_" + i);
-                gpuCloudlet.setRam(0);
-                tasks.add(gpuCloudlet);
-            }
+//            if(i == 0) {
+//                GpuCloudlet gpuCloudlet = cpuTask.tran2Cloudlet(taskIdStart, kernels.get(i));
+//                tasks.add(gpuCloudlet);
+//            }else {
+//                int taskId = taskIdStart + i;
+//                GpuCloudlet gpuCloudlet = new GpuCloudlet(taskId, 0, 0, 0, 0,
+//                        new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull(), kernels.get(i), false);
+//                gpuCloudlet.setName("Task_" + taskId + "_" + i);
+//                gpuCloudlet.setRam(0);
+//                tasks.add(gpuCloudlet);
+//            }
+            int taskId = taskIdStart + i;
+            GpuCloudlet gpuCloudlet = new GpuCloudlet(taskId, 0, 0, 0, 0,
+                    new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull(), kernels.get(i), false);
+            gpuCloudlet.setName("Task_" + taskId + "_" + i);
+            gpuCloudlet.setRam(0);
+            tasks.add(gpuCloudlet);
         }
         BasicClustering clustering = new BasicClustering();
         GpuJob job = clustering.addTasks2Job(tasks);
         job.setCloudletId(id);
         job.setPeriod(period);
         job.setName(name);
+        job.setDeadline(deadline);
         return job;
     }
 

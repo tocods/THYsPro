@@ -5,8 +5,9 @@
         "cpu_task": {
             "ram": 100,
             "pes_number": 1,
-            "length": 600
+            "length": 700
         },
-        "gpu_task": null
+        "gpu_task": null,
+        "host": ""
     }
 ]

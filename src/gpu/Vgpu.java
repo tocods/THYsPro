@@ -107,9 +107,9 @@ public class Vgpu {
 	 * @return time predicted completion time of the earliest finishing task, or 0
 	 *         if there is no next events
 	 */
-	public double updateGpuTaskProcessing(double currentTime, List<Double> mipsShare) {
+	public double updateGpuTaskProcessing(double currentTime, List<Double> mipsShare, List<Double> imipsShare, List<Double> mmipsShare) {
 		if (mipsShare != null) {
-			return getGpuTaskScheduler().updateGpuTaskProcessing(currentTime, mipsShare);
+			return getGpuTaskScheduler().updateGpuTaskProcessing(currentTime, mipsShare, imipsShare, mmipsShare);
 		}
 		return 0.0;
 	}

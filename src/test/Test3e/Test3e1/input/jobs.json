@@ -7,6 +7,7 @@
             "pes_number": 1,
             "length": 900
         },
-        "gpu_task": null
+        "gpu_task": null,
+        "host": ""
     }
 ]

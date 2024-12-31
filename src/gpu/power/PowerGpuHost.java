@@ -101,6 +101,7 @@ public class PowerGpuHost extends PerformanceGpuHost {
 		Integer peInUse = 0;
 		for(ResCloudlet cl: getCloudletScheduler().getCloudletExecList()) {
 			peInUse += cl.getNumberOfPes();
+			//Log.printLine(((GpuCloudlet)cl.getCloudlet()).getName() + " CPU:" + cl.getNumberOfPes());
 		}
 		if(peInUse > getNumberOfPes())
 			return 1;
@@ -110,7 +111,8 @@ public class PowerGpuHost extends PerformanceGpuHost {
 	public double getCurrentRamUtilization() {
 		double ramInUse = 0;
 		for(ResCloudlet cl: getCloudletScheduler().getCloudletExecList()) {
-			ramInUse += ((GpuJob)cl.getCloudlet()).getRam();
+			ramInUse += ((GpuCloudlet)cl.getCloudlet()).getRam();
+			//Log.printLine(((GpuCloudlet)cl.getCloudlet()).getName() + " 内存:" + cl.getRam());
 		}
 		if(ramInUse > getRam())
 			return 1;

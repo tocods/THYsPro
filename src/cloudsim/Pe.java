@@ -44,6 +44,10 @@ public class Pe {
 	/** The pe provisioner. */
 	private PeProvisioner peProvisioner;
 
+	private PeProvisioner intPeProvisioner;
+
+	private PeProvisioner matrixPeProvisioner;
+
 	/**
 	 * Instantiates a new Pe object.
 	 * 
@@ -53,10 +57,11 @@ public class Pe {
 	 * @pre peProvisioner != null
 	 * @post $none
 	 */
-	public Pe(int id, PeProvisioner peProvisioner) {
+	public Pe(int id, PeProvisioner peProvisioner, PeProvisioner i, PeProvisioner m) {
 		setId(id);
 		setPeProvisioner(peProvisioner);
-
+		setIntPeProvisioner(i);
+		setMatrixPeProvisioner(m);
 		// when created it should be set to FREE, i.e. available for use.
 		status = FREE;
 	}
@@ -99,6 +104,14 @@ public class Pe {
 	 */
 	public int getMips() {
 		return (int) getPeProvisioner().getMips();
+	}
+
+	public int getIMips() {
+		return (int) getIntPeProvisioner().getMips();
+	}
+
+	public int getMMips() {
+		return (int) getMatrixPeProvisioner().getMips();
 	}
 
 	/**
@@ -171,6 +184,32 @@ public class Pe {
 	 */
 	public PeProvisioner getPeProvisioner() {
 		return peProvisioner;
+	}
+
+	protected void setIntPeProvisioner(PeProvisioner peProvisioner) {
+		this.intPeProvisioner = peProvisioner;
+	}
+
+	/**
+	 * Gets the Pe provisioner.
+	 *
+	 * @return the Pe provisioner
+	 */
+	public PeProvisioner getIntPeProvisioner() {
+		return intPeProvisioner;
+	}
+
+	protected void setMatrixPeProvisioner(PeProvisioner peProvisioner) {
+		this.matrixPeProvisioner = peProvisioner;
+	}
+
+	/**
+	 * Gets the Pe provisioner.
+	 *
+	 * @return the Pe provisioner
+	 */
+	public PeProvisioner getMatrixPeProvisioner() {
+		return matrixPeProvisioner;
 	}
 
 }

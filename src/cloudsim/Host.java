@@ -14,6 +14,7 @@ import cloudsim.core.CloudSim;
 import cloudsim.lists.PeList;
 import cloudsim.provisioners.BwProvisioner;
 import cloudsim.provisioners.RamProvisioner;
+import gpu.GpuCloudletSchedulerTimeShared;
 import workflow.GpuJob;
 
 /**
@@ -62,8 +63,14 @@ public class Host {
 	private final List<Vm> vmsMigratingIn = new ArrayList<Vm>();
 
 	private List<Double> mips;
+
+	private List<Double> imips;
+
+	private List<Double> mmips;
 	/** The datacenter where the host is placed. */
 	private Datacenter datacenter;
+
+	private String fail = "";
 
 	/**
 	 * Instantiates a new host.
@@ -89,7 +96,7 @@ public class Host {
 		setVmScheduler(vmScheduler);
 		setCloudletScheduler(null);
 		setPeList(peList);
-		setFailed(false);
+		setFailed(false, "");
 	}
 
 
@@ -114,7 +121,7 @@ public class Host {
 
 	public double updateJobsProcessing(double currentTime) {
 
-		return cloudletScheduler.updateVmProcessing(currentTime, mips);
+		return ((GpuCloudletSchedulerTimeShared)cloudletScheduler).updateJobProcessing(currentTime, mips, imips, mmips);
 	}
 
 	public boolean isFinishedCloudlets(){
@@ -573,6 +580,12 @@ public class Host {
 		mips = new ArrayList<>();
 		for(Pe p: peList)
 			mips.add((double)p.getMips());
+		imips = new ArrayList<>();
+		for(Pe p: peList)
+			imips.add((double)p.getIMips());
+		mmips = new ArrayList<>();
+		for(Pe p: peList)
+			mmips.add((double)p.getMMips());
 	}
 
 	/**
@@ -604,9 +617,13 @@ public class Host {
 		return failed;
 	}
 
+	public boolean ifGpuFailed() {return  failed && fail.equals("gpu");}
+
+	public boolean ifHostFailed() {return failed && (fail.equals("CPU") || fail.equals("ram"));}
+
 	/**
 	 * Sets the PEs of the host to a FAILED status. NOTE: <tt>resName</tt> is used for debugging
-	 * purposes, which is <b>ON</b> by default. Use {@link #setFailed(boolean)} if you do not want
+	 * purposes, which is <b>ON</b> by default. Use {@link #setFailed(boolean, String)} if you do not want
 	 * this information.
 	 * 
 	 * @param resName the name of the resource
@@ -626,9 +643,10 @@ public class Host {
 	 * @param failed the failed
 	 * @return <tt>true</tt> if successful, <tt>false</tt> otherwise
 	 */
-	public boolean setFailed(boolean failed) {
+	public boolean setFailed(boolean failed, String type) {
 		// all the PEs are failed (or recovered, depending on fail)
 		this.failed = failed;
+		this.fail = type;
 		PeList.setStatusFailed(getPeList(), failed);
 		return true;
 	}

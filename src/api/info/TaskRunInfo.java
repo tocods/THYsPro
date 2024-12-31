@@ -13,5 +13,7 @@ public class TaskRunInfo {
 
     public String end = "";
 
+    public String compete = "";
+
 
 }

@@ -1,15 +1,13 @@
 package workflow;
 
-import cloudsim.Cloudlet;
+import cloudsim.*;
 import faulttolerant.FaultRecord;
 import gpu.GpuCloudlet;
 import gpu.GpuTask;
-import cloudsim.Host;
-import cloudsim.UtilizationModel;
-import cloudsim.UtilizationModelFull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 为什么要有1个GpuJob类？
@@ -18,13 +16,19 @@ import java.util.List;
 public class GpuJob extends GpuCloudlet {
 
     private int execTime = 0;
+
+    public String type = "";
     private double period;
+
+    private double deadline;
     // 1个任务包含多个内核
     private List<GpuCloudlet> tasks;
 
     private Host host;
 
     private FaultRecord record = null;
+
+    public long doneLen = -1;
 
 
     public GpuJob(int gpuCloudletId, long cloudletLength, int pesNumber, long cloudletFileSize, long cloudletOutputSize, UtilizationModel utilizationModelCpu, UtilizationModel utilizationModelRam, UtilizationModel utilizationModelBw, GpuTask gpuTask) {
@@ -83,6 +87,15 @@ public class GpuJob extends GpuCloudlet {
         }
     }
 
+    public Boolean ifHasKernel() {
+        for(GpuCloudlet cl: getTasks()) {
+            Log.printLine(cl.getGpuTask().hardware);
+            if(Objects.equals(cl.getGpuTask().hardware, "GPU") || Objects.equals(cl.getGpuTask().hardware, "gpu"))
+                return true;
+        }
+        return false;
+    }
+
     public void addGpuTask(GpuCloudlet gpuTask) {
         tasks.add(gpuTask);
     }
@@ -105,6 +118,14 @@ public class GpuJob extends GpuCloudlet {
 
     public void setPeriod(double period) {
         this.period = period;
+    }
+
+    public void setDeadline(Double deadline) {
+        this.deadline = deadline;
+    }
+
+    public double getDeadline() {
+        return deadline;
     }
 
     @Override

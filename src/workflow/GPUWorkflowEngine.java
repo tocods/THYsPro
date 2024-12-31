@@ -4,6 +4,7 @@ import api.service.Parameters;
 import faulttolerant.faultGenerator.FaultGenerator;
 import gpu.GpuCloudlet;
 import gpu.GpuDatacenterBroker;
+import gpu.GpuHost;
 import gpu.core.GpuCloudSimTags;
 import cloudsim.Cloudlet;
 import cloudsim.DatacenterCharacteristics;
@@ -82,6 +83,10 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
             case WorkflowSimTags.WORKFLOW_CLOUDLET_END_SIM:
                 doComplete();
                 break;
+            case WorkflowSimTags.WORKFLOW_CLOUDLET_DEADLINE:
+                GpuJob gpuJob2 = (GpuJob) ev.getData();
+                checkDeadline(gpuJob2);
+                break;
             default:
                 super.processOtherEvent(ev);
                 break;
@@ -146,12 +151,22 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
         jobs.add(jobRepeat);
         jobAllocationInterface.setJobs(jobs);
         try {
-            jobAllocationInterface.run();
-            sendNow(datacenterId, CloudSimTags.CLOUDLET_SUBMIT, jobAllocationInterface.getJobs().get(0));
+//            jobAllocationInterface.run();
+//            sendNow(datacenterId, CloudSimTags.CLOUDLET_SUBMIT, jobAllocationInterface.getJobs().get(0));
+            sendNow(datacenterId, CloudSimTags.CLOUDLET_SUBMIT, jobRepeat);
             cloudletsSubmitted++;
             getCloudletSubmittedList().add(job);
         }catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    protected void checkDeadline(GpuJob job) {
+        Log.printLine(CloudSim.clock() + ": 任务" + job.getName() + "截止时间到");
+        int datacenterId = host2Datacenter.get(job.getVmId());
+        if(this.jobRepeat.get(job.getName()) == 0) {
+            Log.printLine(CloudSim.clock() + " : " + job.getName() + "超时，在" + job.getHost().getName() + "上");
+            sendNow(datacenterId, WorkflowSimTags.WORKFLOW_CLOUDLET_OUT, job);
         }
     }
 
@@ -189,27 +204,46 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
      */
     protected void doTaskDeliver() throws Exception {
         List<GpuJob> tasks2Submit = new ArrayList<>();
+//        for(Cloudlet c: getCloudletList()) {
+//            GpuJob job = (GpuJob) c;
+//            boolean ifAllParentFinish = true;
+//            for(Cloudlet parent: job.getParent()){
+//                if(!getCloudletReceivedList().contains(parent)){
+//                    ifAllParentFinish = false;
+//                    break;
+//                }
+//            }
+//            if(ifAllParentFinish)
+//                tasks2Submit.add(job);
+//        }
+//        getCloudletList().removeAll(tasks2Submit);
+//        List<GpuJob> jobs = doSchedule(tasks2Submit);
+//        for(GpuJob job: jobs) {
+//            if(job.getPeriod() != 0 && job.getExecTime() == 0) {
+//                jobNeedRepeat++;
+//                haveJobRepeat = true;
+//                if(!jobRepeat.containsKey(job.getName())) {
+//                    jobRepeat.put(job.getName(), 0);
+//                    send(getId(), job.getPeriod(), WorkflowSimTags.WORKFLOW_CLOUDLET_NEXT_PERIOD, job);
+//                }
+//            }
+//            int datacenterId = host2Datacenter.get(job.getVmId());
+//            sendNow(datacenterId, CloudSimTags.CLOUDLET_SUBMIT, job);
+//            cloudletsSubmitted ++;
+//            getCloudletSubmittedList().add(job);
+//        }
         for(Cloudlet c: getCloudletList()) {
             GpuJob job = (GpuJob) c;
-            boolean ifAllParentFinish = true;
-            for(Cloudlet parent: job.getParent()){
-                if(!getCloudletReceivedList().contains(parent)){
-                    ifAllParentFinish = false;
-                    break;
-                }
-            }
-            if(ifAllParentFinish)
-                tasks2Submit.add(job);
+            tasks2Submit.add(job);
         }
-        getCloudletList().removeAll(tasks2Submit);
-        List<GpuJob> jobs = doSchedule(tasks2Submit);
-        for(GpuJob job: jobs) {
+        for(GpuJob job: tasks2Submit) {
             if(job.getPeriod() != 0 && job.getExecTime() == 0) {
                 jobNeedRepeat++;
                 haveJobRepeat = true;
                 if(!jobRepeat.containsKey(job.getName())) {
                     jobRepeat.put(job.getName(), 0);
                     send(getId(), job.getPeriod(), WorkflowSimTags.WORKFLOW_CLOUDLET_NEXT_PERIOD, job);
+                    send(getId(), job.getDeadline(), WorkflowSimTags.WORKFLOW_CLOUDLET_DEADLINE, job);
                 }
             }
             int datacenterId = host2Datacenter.get(job.getVmId());
@@ -268,6 +302,7 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
 //        if(period == 0 || (jobRepeat.getExecTime() > workflow.Parameters.maxTime && workflow.Parameters.duration == Double.MAX_VALUE))
 //            return;
 //        send(getId(), Math.max(delay, 0), WorkflowSimTags.WORKFLOW_CLOUDLET_NEXT_PERIOD, jobRepeat);
+        Log.printLine("将" + job.getName() + "设为1");
         jobRepeat.put(job.getName(), 1);
     }
 

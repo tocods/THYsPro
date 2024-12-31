@@ -37,4 +37,8 @@ public interface FaultGenerator {
     String getType();
 
     double getRepairTime();
+
+    String getFaultType();
+
+    void setFaultType(String t);
 }

@@ -6,6 +6,7 @@ import cloudsim.Log;
 import cloudsim.core.CloudSim;
 import cloudsim.util.MathUtil;
 import org.apache.commons.math3.analysis.function.Max;
+import workflow.GpuJob;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,14 +74,18 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 	}
 
 	@Override
-	public double updateGpuTaskProcessing(double currentTime, List<Double> mipsShare) {
+	public double updateGpuTaskProcessing(double currentTime, List<Double> mipsShare, List<Double> imipsShare, List<Double> mmipsShare) {
 		//Log.printLine("aaaasasa");
 		setCurrentMipsShare(mipsShare);
 		double timeSpan = currentTime - getPreviousTime(); // time since last
 		// 如果不开启GPU共享，执行任务队列中只会有1个任务
 		for (ResGpuTask rcl : getTaskExecList()) {
-
-			rcl.updateTaskFinishedSoFar((long) (getTotalCurrentAvailableMipsForTask(rcl, mipsShare)
+			double cap = getTotalCurrentAvailableMipsForTask(rcl, mipsShare);
+			if(rcl.getGpuTask().calcuType == 1)
+				cap = getTotalCurrentAvailableMipsForTask(rcl, imipsShare);
+			if(rcl.getGpuTask().calcuType == 2)
+				cap = getTotalCurrentAvailableMipsForTask(rcl, mmipsShare);
+			rcl.updateTaskFinishedSoFar((long) (cap
 					* rcl.getGpuTask().getUtilizationOfGpu(currentTime) * timeSpan * Consts.MILLION));
 		}
 		//Log.printLine(getTaskExecList().size() + "个任务在执行");
@@ -98,6 +103,7 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 				toRemove.add(rcl);
 				//Log.printLine(CloudSim.clock() + " : 结束");
 				taskFinish(rcl);
+				Log.printLine(rcl.getGpuTask().getName() + " 执行结束");
 			}
 		}
 		getTaskExecList().removeAll(toRemove);
@@ -260,6 +266,50 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 		usedGddram = Math.max(0, usedGddram);
 	}
 
+	@Override
+	public long jobFail(GpuJob job) {
+		long ret = 0;
+		Log.printLine(CloudSim.clock() + ": " + job.getName() + " 进入超时流程");
+		List<ResGpuTask> toRemove = new ArrayList<>();
+		for(ResGpuTask cl: getTaskExecList()) {
+			GpuCloudlet cloudlet = cl.getGpuTask().getCloudlet();
+			if(job.getTasks().contains(cloudlet)) {
+				Log.printLine(cl.getGpuTask().getName() + "超时");
+				toRemove.add(cl);
+				ret += cl.getDoneLen();
+				//taskFinish(cl);
+				cl.finalizeTask();
+				List<Integer> pesToRemove = new ArrayList<>();
+				for (Integer peId : getUsedBlocks()) {
+					pesToRemove.add(peId);
+				}
+				getUsedBlocks().removeAll(pesToRemove);
+				getTaskFinishedList().add(cl);
+				usedGddram -= cl.getGpuTask().getRequestedGddramSize();
+				usedGddram = Math.max(0, usedGddram);
+			}
+		}
+		getTaskExecList().removeAll(toRemove);
+		toRemove = new ArrayList<>();
+		for(ResGpuTask cl: getTaskWaitingList()) {
+			GpuCloudlet cloudlet = cl.getGpuTask().getCloudlet();
+			if(job.getTasks().contains(cloudlet)) {
+				//Log.printLine(cl.getGpuTask().getName() + "超时");
+				toRemove.add(cl);
+				//taskFinish(cl);
+			}
+		}
+		getTaskWaitingList().removeAll(toRemove);
+		return ret;
+	}
+
+	@Override
+	public void hostFail() {
+		usedGddram = 0;
+		getUsedBlocks().clear();
+		super.hostFail();
+	}
+
 	// TODO: Test it
 	@Override
 	public double taskResume(int taskId) {
@@ -326,6 +376,11 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 	public double taskSubmit(GpuTask task) {
 
 		ResGpuTask rgt = new ResGpuTask(task);
+//		if(getCurrentMipsShare() == null)
+//			Log.printLine("1");
+//		if(getUsedBlocks() == null)
+//			Log.printLine("2");
+		Log.printLine("GPU任务长度：" + task.getTaskTotalLength());
 		// 获取GPU剩余线程块数
 		int numberOfCurrentAvailablePEs = getCurrentMipsShare().size() - getUsedBlocks().size();
 		//Log.printLine(gddram + " " + usedGddram);
@@ -349,10 +404,14 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 			}
 			usedGddram += task.getRequestedGddramSize();
 			getTaskExecList().add(rgt);
-			Log.printLine(getEstimatedFinishTime(rgt));
+			//Log.printLine(getEstimatedFinishTime(rgt));
 			return getEstimatedFinishTime(rgt);
 		} else {// 没有剩余的核或者未开启GPU共享，任务内核进入等待队列
 			rgt.setTaskStatus(GpuTask.QUEUED);
+			if(numberOfCurrentAvailablePEs <= 0)
+				rgt.failType = "GPU";
+			else
+				rgt.failType = "GDDRAM";
 			getTaskWaitingList().add(rgt);
 			return 0.0;
 		}
@@ -377,7 +436,7 @@ public class GpuTaskSchedulerLeftover extends GpuTaskScheduler {
 	 * @pre $none
 	 * @post $none
 	 * 
-	 * @todo it doesn't check if the list is empty
+	 * @TODO: it doesn't check if the list is empty
 	 */
 	// TODO: Test it
 	@Override

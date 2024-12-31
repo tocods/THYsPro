@@ -1,22 +1,24 @@
 [
     {
-        "name": "job_ram_1",
-        "period": 10.0,
+        "name": "job_ram_2",
+        "period": "10",
         "cpu_task": {
-            "ram": 800,
-            "pes_number": 1,
-            "length": 400
+            "ram": "4096",
+            "pes_number": 4,
+            "length": "48"
         },
-        "gpu_task": null
+        "gpu_task": null,
+        "host": ""
     },
     {
-        "name": "job_ram_2",
-        "period": 10.0,
+        "name": "job_ram_1",
+        "period": "10",
         "cpu_task": {
-            "ram": 800,
-            "pes_number": 1,
-            "length": 400
+            "ram": "4096",
+            "pes_number": 4,
+            "length": "48"
         },
-        "gpu_task": null
+        "gpu_task": null,
+        "host": ""
     }
 ]

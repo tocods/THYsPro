@@ -42,10 +42,23 @@ public class BasicAllocation implements JobAllocationInterface{
 
     protected void doSchedule(List<Host> filterHosts) throws Exception {
         if(filterHosts.isEmpty())
-            throw new Exception();
+            throw new Exception("所有主机都已宕机");
         List<GpuJob> noKernelJob = new ArrayList<>();
         List<GpuJob> kernelJob = new ArrayList<>();
-        // 为了便于调度，将任务区分为GPu任务和非GPU任务
+        // 首先排除指定了主机的任务
+        List<GpuJob> toRemove = new ArrayList<>();
+        for(GpuJob job: jobs) {
+            if(job.getHost() != null) {
+                if(job.getHost().getRam() < job.getRam())
+                    continue;
+                toRemove.add(job);
+                schedJobs.add(job);
+                Log.printLine("指定调度:将" + job.getName() + "分配到" + job.getHost().getName());
+            }
+        }
+        if(!toRemove.isEmpty())
+            jobs.removeAll(toRemove);
+        // 为了便于调度，将任务区分为GPU任务和非GPU任务
         for(GpuJob job: jobs) {
             boolean ifKernel = false;
             for(GpuCloudlet gpuCloudlet: job.getTasks()) {
@@ -67,7 +80,6 @@ public class BasicAllocation implements JobAllocationInterface{
                 // 此时说明所有节点都不满足要求
                 if(times == filterHosts.size()) {
                     // 此时表明所有节点都不具备承载任务的基本条件
-                    Log.printLine(ifHasBasicHost);
                     if(!ifHasBasicHost)
                         remainJobs.add(job);
                     // 有的节点虽然此时可用资源不够，但随着节点上任务完成资源被释放，该任务可以运行
@@ -86,7 +98,7 @@ public class BasicAllocation implements JobAllocationInterface{
                     times ++;
                     continue;
                 }
-                Log.printLine("RoundRobin调度器：将" + job.getName() + "分配到" + filterHosts.get(lastId).getName());
+                Log.printLine("调度器：将" + job.getName() + "分配到" + filterHosts.get(lastId).getName());
                 job.setVmId(filterHosts.get(lastId).getId());
                 job.setHost(filterHosts.get(lastId));
                 //Log.printLine("finish schedule");
@@ -99,8 +111,6 @@ public class BasicAllocation implements JobAllocationInterface{
             ifHasBasicHost = false;
             while (true) {
                 // 此时说明所有节点都不满足要求
-                job.setVmId(0);
-                job.setHost(filterHosts.get(0));
                 if(times == filterHosts.size()) {
                     if(!ifHasBasicHost)
                         remainJobs.add(job);
@@ -110,16 +120,16 @@ public class BasicAllocation implements JobAllocationInterface{
                 }
                 lastId = (lastId + 1) % filterHosts.size();
                 double availableRam = (filterHosts.get(lastId)).getRam() * (1 - ((PowerGpuHost) (filterHosts.get(lastId))).getCurrentRamUtilization());
-                if(filterHosts.get(lastId).getRam() >= job.getRam()) {
+                if(filterHosts.get(lastId).getRam() >= job.getRam() && !filterHosts.get(lastId).ifGpuFailed()) {
                     ifHasBasicHost = true;
                     job.setVmId(filterHosts.get(lastId).getId());
                     job.setHost(filterHosts.get(lastId));
                 }
-                if(availableRam < job.getRam()) {
+                if(availableRam < job.getRam() || filterHosts.get(lastId).ifGpuFailed() || !((GpuHost)(filterHosts.get(lastId))).isGpuEquipped()) {
                     times ++;
                     continue;
                 }
-                Log.printLine("RoundRobin调度器：将" + job.getName() + "分配到" + filterHosts.get(lastId).getName());
+                Log.printLine("调度器：将" + job.getName() + "分配到" + filterHosts.get(lastId).getName());
                 job.setVmId(filterHosts.get(lastId).getId());
                 job.setHost(filterHosts.get(lastId));
                 //Log.printLine("finish schedule");
@@ -133,7 +143,7 @@ public class BasicAllocation implements JobAllocationInterface{
         List<Host> ret = new ArrayList<>();
         filteredHost = new ArrayList<>();
         for(Host h: hosts) {
-            if(h.isFailed()) {
+            if(h.ifHostFailed()) {
                 filteredHost.add(h);
                 continue;
             }

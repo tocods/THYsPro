@@ -50,6 +50,8 @@ public class ResGpuTask {
 	/** The an array of Pe IDs. */
 	private List<Integer> peArrayId = null;
 
+	public String failType = "";
+
 	// NOTE: Below attributes are related to AR stuff
 
 	/** The Constant NOT_FOUND. */
@@ -289,6 +291,7 @@ public class ResGpuTask {
 
 			// if a GpuTask is now in execution
 			if (status == Cloudlet.INEXEC || (prevStatus == Cloudlet.PAUSED && status == Cloudlet.RESUMED)) {
+				Log.printLine("设置开始时间：" + clock);
 				startExecTime = clock;
 				task.setExecStartTime(startExecTime);
 			}
@@ -393,6 +396,10 @@ public class ResGpuTask {
 
 		// Launch
 		task.setTaskFinishedSoFar(finished);
+	}
+
+	public long getDoneLen() {
+		return  taskFinishedSoFar / Consts.MILLION;
 	}
 
 	/**

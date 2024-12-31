@@ -2,6 +2,7 @@ package gpu;
 
 import cloudsim.Cloudlet;
 import cloudsim.CloudletSchedulerSpaceShared;
+import cloudsim.Log;
 import cloudsim.ResCloudlet;
 import cloudsim.core.CloudSim;
 
@@ -31,6 +32,7 @@ public class GpuCloudletSchedulerSpaceShared extends CloudletSchedulerSpaceShare
 	@Override
 	public double cloudletSubmit(Cloudlet cloudlet, double fileTransferTime) {
 		// it can go to the exec list
+		Log.printLine("aaa");
 		if ((currentCpus - usedPes) >= cloudlet.getNumberOfPes()) {
 			ResGpuCloudlet rgcl = new ResGpuCloudlet((GpuCloudlet) cloudlet);
 			rgcl.setCloudletStatus(Cloudlet.INEXEC);

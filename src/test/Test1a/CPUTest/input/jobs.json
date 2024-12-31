@@ -1,12 +1,24 @@
 [
     {
-        "name": "job_cpu",
-        "period": 10.0,
+        "name": "job_cpu_1",
+        "period": "10",
         "cpu_task": {
-            "ram": 100,
-            "pes_number": 1,
-            "length": 400
+            "ram": "100",
+            "pes_number": 4,
+            "length": "48"
         },
-        "gpu_task": null
+        "gpu_task": null,
+        "host": ""
+    },
+    {
+        "name": "job_cpu_2",
+        "period": "10",
+        "cpu_task": {
+            "ram": "100",
+            "pes_number": 4,
+            "length": "48"
+        },
+        "gpu_task": null,
+        "host": ""
     }
 ]

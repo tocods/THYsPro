@@ -126,7 +126,7 @@ public class GpuDatacenterEx extends PowerGpuDatacenter {
 
 				VideoCard videoCard = vgpu.getVideoCard();
 				vgpu.updateGpuTaskProcessing(CloudSim.clock(),
-						videoCard.getVgpuScheduler().getAllocatedMipsForVgpu(vgpu));
+						videoCard.getVgpuScheduler().getAllocatedMipsForVgpu(vgpu), null, null);
 			}
 		}
 

@@ -14,7 +14,7 @@ import java.util.List;
 
 import cloudsim.core.CloudSim;
 import gpu.GpuCloudlet;
-import javafx.util.Pair;
+import cloudsim.Pair;
 
 /**
  * Cloudlet is an extension to the cloudlet. It stores, despite all the
@@ -27,7 +27,7 @@ import javafx.util.Pair;
  */
 public class Cloudlet {
 
-    private List<Pair<Double, Double>> execRecords = new ArrayList<>();
+    private List<Pair> execRecords = new ArrayList<>();
 
     /**
      * The cloudlet ID.
@@ -729,6 +729,7 @@ public class Cloudlet {
      */
     public long getCloudletFinishedSoFar() {
         if (index == -1) {
+            Log.printLine("index == -1");
             return cloudletLength;
         }
 
@@ -990,7 +991,7 @@ public class Cloudlet {
         }
     }
 
-    public List<Pair<Double, Double>> getExecRecords() {
+    public List<Pair> getExecRecords() {
         return execRecords;
     }
 
@@ -1142,7 +1143,7 @@ public class Cloudlet {
      * @post $result >= 0.0
      */
     public long getCloudletTotalLength() {
-        return getCloudletLength() * getNumberOfPes();
+        return getCloudletLength();
     }
 
     /**

@@ -1,9 +1,6 @@
 package gpu;
 
-import cloudsim.Host;
-import cloudsim.ResCloudlet;
-import cloudsim.UtilizationModel;
-import cloudsim.UtilizationModelFull;
+import cloudsim.*;
 import cloudsim.core.CloudSim;
 
 import java.text.DecimalFormat;
@@ -17,6 +14,8 @@ import java.util.List;
  * 
  */
 public class GpuTask {
+	public String hardware;
+	public Integer calcuType;
 	private double h2d = 0.0;
 
 	private double d2h = 0.0;
@@ -62,6 +61,8 @@ public class GpuTask {
 	 * The memory size that needs to be allocate in the {@link Vgpu} for the task.
 	 */
 	private final long requestedGddramSize;
+
+
 
 	/**
 	 * Total number of task block. The length of the task is
@@ -301,6 +302,9 @@ public class GpuTask {
 		GpuTask t = new GpuTask(taskId, blockLength, numberOfBlocks, taskInputSize, taskOutputSize, requestedGddramSize,
 				new UtilizationModelFull(), new UtilizationModelGaussian(), new UtilizationModelFull(), false);
 		t.setName(getName());
+		t.setThreadsPerBlock(getThreadsPerBlock());
+		t.calcuType = calcuType;
+		t.hardware = this.hardware;
 		return t;
 	}
 
@@ -575,6 +579,10 @@ public class GpuTask {
 
 	public boolean isThisResCloudlet(ResCloudlet cl) {
 		return cl.getCloudletId() == resId;
+	}
+
+	public Integer getResId() {
+		return resId;
 	}
 
 	/**
@@ -955,8 +963,10 @@ public class GpuTask {
 	 * @post $result >= 0.0
 	 */
 	public long getTaskTotalLength() {
-		return getBlockLength() * getNumberOfBlocks();
+//		return getBlockLength() * getNumberOfBlocks() * getThreadsPerBlock();
+		return getBlockLength();
 	}
+
 
 	/**
 	 * Gets the cost/sec of running the task in the latest CloudResource.

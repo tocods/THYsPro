@@ -4,7 +4,7 @@ import gpu.GpuTask;
 import gpu.Pgpu;
 import gpu.ResGpuCloudlet;
 import gpu.ResGpuTask;
-import javafx.util.Pair;
+import cloudsim.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,7 +91,7 @@ public abstract class VideoCardBwProvisioner {
 	/**
 	 * Gets the allocated PCIe BW for Pgpu.
 	 * 
-	 * @param pgpu
+	 * @param Pgpu
 	 *            the pgpu
 	 * 
 	 * @return the allocated PCIe BW for the pgpu

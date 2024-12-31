@@ -8,10 +8,7 @@ import cloudsim.core.predicates.PredicateType;
 import faulttolerant.faultGenerator.FaultGenerator;
 import faulttolerant.faultInject.BasicInjector;
 import faulttolerant.faultInject.FaultInjector;
-import gpu.GpuCloudlet;
-import gpu.GpuHost;
-import gpu.GpuTask;
-import gpu.ResGpuTask;
+import gpu.*;
 import gpu.core.GpuCloudSimTags;
 import gpu.power.PowerGpuHost;
 import workflow.GPUWorkflowDatacenter;
@@ -19,6 +16,7 @@ import workflow.GpuJob;
 import workflow.Parameters;
 import workflow.WorkflowSimTags;
 import workflow.jobAllocation.BasicAllocation;
+import workflow.jobAllocation.FaultAllocation;
 import workflow.jobAllocation.JobAllocationInterface;
 import workflow.jobAllocation.RandomAllocation;
 import workflow.taskCluster.BasicClustering;
@@ -26,6 +24,7 @@ import workflow.taskCluster.BasicClustering;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
     private boolean faultToleranceEnabled;
@@ -74,10 +73,10 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
         return faultToleranceEnabled;
     }
 
-    public void setHostFaultGenerator(Host host, FaultGenerator generator) {
+    public void setHostFaultGenerator(Host host, List<FaultGenerator> generators) {
         if(!isFaultToleranceEnabled())
             return;
-        getFaultInjector().initHostGenerator(host, generator);
+        getFaultInjector().initHostGenerator(host, generators);
     }
 
     public void setJobFaultGenerator(String job, FaultGenerator generator) {
@@ -116,8 +115,29 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
             case FaultTolerantTags.RECORD_FAULT_RECORD:
                 FaultRecord record = (FaultRecord)ev.getData();
                 faulttolerant.Parameters.faultRecordList.add(record);
+                Topo topo = new Topo();
+                topo.hosts = new ArrayList<>();
+                DecimalFormat format = new DecimalFormat("##.##");
+                topo.time = format.format(CloudSim.clock());
+                for(Host h : getHostList()) {
+                    List<ResCloudlet> cloudletList = h.getCloudletScheduler().getCloudletExecList();
+                    cloudletList.addAll(h.getCloudletScheduler().getCloudletPausedList());
+                    cloudletList.addAll(h.getCloudletScheduler().getCloudletWaitingList());
+                    Topo.TopoHost host = topo.new TopoHost();
+                    host.hostName = h.getName();
+                    host.softwares = new ArrayList<>();
+                    for(ResCloudlet cl: cloudletList) {
+                        ResGpuCloudlet rgcl = (ResGpuCloudlet) cl;
+                        if(!rgcl.ifFromGpu) {
+                            host.softwares.add(((GpuCloudlet)rgcl.getCloudlet()).getName());
+                        }
+                    }
+                    topo.hosts.add(host);
+                }
+                faulttolerant.Parameters.topos.add(topo);
         }
     }
+
 
 
     /**
@@ -127,7 +147,9 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
     protected void processHostRepair(SimEvent ev) {
         Host h = (Host) ev.getData();
         h.getCloudletScheduler().hostRepair(CloudSim.clock());
-        h.setFailed(false);
+        h.setFailed(false, "");
+        Log.printLine(CloudSim.clock() + ": " + h.getName() + "恢复运行");
+        ((GpuHost)h).addFailTime();
         Log.printLine(new DecimalFormat("##.##").format(CloudSim.clock()) + ": " + h.getName() + "故障恢复");
         sendNow(getId(), FaultTolerantTags.FAULT_DATACENTER_EVENT, null);
     }
@@ -172,13 +194,23 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
             return;
         DecimalFormat format = new DecimalFormat("###.##");
         Log.printLine(format.format(CloudSim.clock()) + ": " + h.getName() + "宕机");
-        Double redundancyBefore = getRedundancyOfCluster();
-        h.setFailed(true);
+        Integer redundancyBefore = 0;
+        h.setFailed(true, getFaultInjector().lastFaultType(h));
+        for(Host host : getHostList())
+            if(!host.ifHostFailed())
+                redundancyBefore ++;
         Double redundancyAfter = getRedundancyOfCluster();
         FaultRecord record = new FaultRecord();
         record.type = FaultRecord.FaultType.REBUILD;
         record.redundancyBefore = redundancyBefore;
         record.redundancyAfter = redundancyAfter;
+        record.faultType = faultInjector.lastFaultType(h);
+        record.host2Cals = host2Cals;
+        for(Map.Entry<String, List<String>> s: host2Cals.entrySet()) {
+            Log.printLine(s.getKey() + ": ");
+            for(String ss : s.getValue())
+                Log.printLine("     " + ss);
+        }
         // 将故障主机上的任务迁移到其他主机上
         startMigrateTaskInFailedHost(h, record);
         //sendNow(getId(), CloudSimTags.VM_DATACENTER_EVENT);
@@ -218,27 +250,37 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
                 continue;
             filterHosts.add(host);
         }
-        JobAllocationInterface jobAllocation = getAllocation();
+        JobAllocationInterface jobAllocation = new FaultAllocation();
         jobAllocation.setHosts(filterHosts);
-        List<ResCloudlet> cloudletList = h.getCloudletScheduler().getCloudletExecList();
-        cloudletList.addAll(h.getCloudletScheduler().getCloudletPausedList());
-        cloudletList.addAll(h.getCloudletScheduler().getCloudletWaitingList());
+        List<ResCloudlet> cloudletList = h.getCloudletScheduler().getCloudletPausedList();
         List<GpuJob> job2Migrate = new ArrayList<>();
+        Boolean ifGpu = getFaultInjector().lastFaultType(h).equals("gpu");
+        Integer i = 0;
         for(ResCloudlet cl: cloudletList) {
-            cl.finalizeCloudlet();
+            ResGpuCloudlet rgcl = (ResGpuCloudlet)cl;
+            if(rgcl.ifFromGpu)
+                continue;
             GpuCloudlet gpuCloudlet = (GpuCloudlet)cl.getCloudlet();
+            Log.printLine("检查下" + gpuCloudlet.getName() + ((GpuJob)gpuCloudlet).ifHasKernel());
+            if(ifGpu && !((GpuJob)gpuCloudlet).ifHasKernel())
+                continue;
+            Log.printLine(gpuCloudlet.getName() + "需要迁移 " + i);
+            i++;
+            rgcl.finalizeCloudlet();
+            gpuCloudlet = (GpuCloudlet)cl.getCloudlet();
             job2Migrate.add((GpuJob) gpuCloudlet);
         }
-        ((GpuHost)h).hostFail();
+        ((GpuHost)h).hostFail(getFaultInjector().lastFaultType(h).equals("gpu"));
         DecimalFormat format = new DecimalFormat("###.##");
         if(job2Migrate.isEmpty()) {
             record.ifFalseAlarm = "True";
             record.fault = h.getName();
             record.time = format.format(CloudSim.clock());
+            record.ifEmpty = "True";
             faulttolerant.Parameters.faultRecordList.add(record);
             return;
         }
-        //Log.printLine(CloudSim.clock() + ": " + job2Migrate.size());
+        Log.printLine(CloudSim.clock() + ": " + job2Migrate.size() + " 个任务待迁移");
         jobAllocation.setJobs(job2Migrate);
         faulttolerant.Parameters.jobTotalRebuildNum += job2Migrate.size();
         try {
@@ -255,22 +297,23 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
             if(!jobAllocation.getJobs().isEmpty()) {
                 for (GpuJob job : jobAllocation.getJobs()) {
                     job.setRecord(record);
+                    Log.printLine("将任务 " + job.getName() + " 迁移至 " + job.getHost().getName());
                     sendNow(getId(), CloudSimTags.CLOUDLET_SUBMIT, job);
                 }
             }else {
                 record.redundancyAfter = 0.0;
                 faulttolerant.Parameters.faultRecordList.add(record);
             }
-            //faulttolerant.Parameters.faultRecordList.add(record);
         }catch (Exception e) {
             // 此时网络重构失败
-            ((GpuHost)h).hostFail();
+            //((GpuHost)h).hostFail();
             record.ifFalseAlarm = "False";
             record.ifSuccessRebuild = "False";
             record.fault = h.getName();
             record.time = format.format(CloudSim.clock());
             faulttolerant.Parameters.faultRecordList.add(record);
             Log.printLine(e.getMessage());
+            // e.printStackTrace();
         }
     }
 
@@ -281,7 +324,7 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
     @Override
     protected void processGpuCloudletReturn(SimEvent ev) {
         GpuCloudlet cl = (GpuCloudlet) ev.getData();
-        //Log.printLine(cl.getGpuTask().getName() + "执行完成");
+        Log.printLine(cl.getGpuTask().getName() + "执行完成");
         try {
                 cl.setCloudletStatus(Cloudlet.SUCCESS);
                 notifyGpuTaskCompletion(cl.getGpuTask());
@@ -298,9 +341,9 @@ public class GPUWorkflowFaultDatacenter extends GPUWorkflowDatacenter {
     protected void processCloudletReturn(SimEvent ev) {
         GpuJob job = (GpuJob) ev.getData();
         try {
-            //Log.printLine("当前时间：" + CloudSim.clock());
+            Log.printLine(CloudSim.clock() + ": 将" + job.getName() + "返回给引擎");
             job.setCloudletStatus(Cloudlet.SUCCESS);
-            sendNow(job.getUserId(), CloudSimTags.CLOUDLET_RETURN, job);
+            sendNow(Parameters.engineID, CloudSimTags.CLOUDLET_RETURN, job);
         }catch (Exception e) {
             Log.printLine("设置任务完成状态时发生了意外。。。。但理论上是不可能的");
             e.printStackTrace();

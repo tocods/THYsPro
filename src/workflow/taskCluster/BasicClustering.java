@@ -126,7 +126,6 @@ public class BasicClustering implements ClusteringInterface {
                 length += task.getCloudletLength();
                 userId = task.getUserId();
                 ram += task.getRam();
-                //Log.printLine("aaa: " + task.getName());
                 job.addGpuTask(task);
                 getTask2Job().put(task, job);
             }

@@ -7,7 +7,8 @@
             "pes_number": 1,
             "length": 800
         },
-        "gpu_task": null
+        "gpu_task": null,
+        "host": ""
     },
     {
         "name": "job_gpu",
@@ -33,6 +34,7 @@
             "requested_gddram_size": 800,
             "task_input_size": 100,
             "task_output_size": 100
-        }
+        },
+        "host": ""
     }
 ]

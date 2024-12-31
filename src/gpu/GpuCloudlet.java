@@ -138,6 +138,17 @@ public class GpuCloudlet extends Cloudlet {
 		initParent();
 	}
 
+	public GpuCloudlet(int cloudletId, long cloudletLength, int pesNumber, long cloudletFileSize,
+					   long cloudletOutputSize, UtilizationModel utilizationModelCpu, UtilizationModel utilizationModelRam,
+					   UtilizationModel utilizationModelBw, GpuTask gpuTask, boolean record, double ram) {
+		super(cloudletId, cloudletLength, pesNumber, cloudletFileSize, cloudletOutputSize, utilizationModelCpu,
+				utilizationModelRam, utilizationModelBw, record);
+		setGpuTask(gpuTask);
+		initChildren();
+		initParent();
+		setRam(ram);
+	}
+
 	public GpuCloudlet getNewCloudlet() {
 		if(getGpuTask() != null) {
 			GpuCloudlet cl = new GpuCloudlet(getCloudletId(), getCloudletLength(), getNumberOfPes(), getCloudletFileSize(), getCloudletOutputSize(),

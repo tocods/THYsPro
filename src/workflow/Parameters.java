@@ -10,4 +10,6 @@ public class Parameters {
     public static int maxTime = 3;
 
     public static double duration = Double.MAX_VALUE;
+
+    public static int engineID = -1;
 }

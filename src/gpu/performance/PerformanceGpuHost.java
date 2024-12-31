@@ -54,7 +54,7 @@ public class PerformanceGpuHost extends GpuHost {
 				PerformanceScheduler<Vgpu> vgpuScheduler = (PerformanceScheduler<Vgpu>) getVideoCardAllocationPolicy()
 						.getVgpuVideoCardMap().get(vgpu).getVgpuScheduler();
 				double time = vgpu.updateGpuTaskProcessing(currentTime,
-						vgpuScheduler.getAvailableMips(vgpu, runningVgpus));
+						vgpuScheduler.getAvailableMips(vgpu, runningVgpus), null, null);
 				if (time > 0.0 && time < smallerTime) {
 					smallerTime = time;
 				}

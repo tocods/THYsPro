@@ -12,22 +12,39 @@ import gpu.GpuTask;
 import workflow.GpuJob;
 import workflow.taskCluster.BasicClustering;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BasicInjector implements FaultInjector{
     private final Map<String, FaultGenerator> task2Generator;
-    private Map<Integer, FaultGenerator> host2Generator;
+    private Map<Integer, List<FaultGenerator>> host2Generator;
+
+    private Map<Integer, List<FaultGenerator>> gpu2Generator;
+
+    private Map<Integer, FaultGenerator> lastHost;
 
     public BasicInjector() {
         task2Generator = new HashMap<>();
         host2Generator = new HashMap<>();
+        gpu2Generator = new HashMap<>();
+        lastHost = new HashMap<>();
     }
 
 
     @Override
-    public void initHostGenerator(Host host, FaultGenerator faultGenerator) {
-        host2Generator.put(host.getId(), faultGenerator);
+    public void initHostGenerator(Host host, List<FaultGenerator> faultGenerators) {
+        List<FaultGenerator> host2s = new ArrayList<>();
+        List<FaultGenerator> gpu2s = new ArrayList<>();
+        for(FaultGenerator faultGenerator: faultGenerators) {
+            if(faultGenerator.getFaultType().equals("gpu"))
+                gpu2s.add(faultGenerator);
+            else
+                host2s.add(faultGenerator);
+        }
+        host2Generator.put(host.getId(), host2s);
+        gpu2Generator.put(host.getId(), gpu2s);
     }
 
     @Override
@@ -74,36 +91,91 @@ public class BasicInjector implements FaultInjector{
     @Override
     public double nextHostFailTime(Host host, double currentTime) {
         double nextTime = Double.MAX_VALUE;
-        FaultGenerator faultGenerator = host2Generator.get(host.getId());
-        if(faultGenerator == null) {
-            if(FaultTolerantTags.IF_TEST) {
-                faultGenerator = new NormalGenerator();
-                faultGenerator.initSamples(100, 100);
-            }else
-                return Double.MAX_VALUE;
-        }
-        double[] samples = faultGenerator.getCumulativeSamples();
-        // 如果错误时间点的最后一个都小于当前时间，我们生成一系列新的错误时间点
-        if(samples[samples.length - 1] < currentTime){
-            faultGenerator.extendSample();
-            samples = faultGenerator.getCumulativeSamples();
-        }
-        for (double sample : samples) {
-            //Log.printLine(sample);
-            if (currentTime < sample) {
-                //有错误
-                nextTime = sample;
-                break;
+        List<FaultGenerator> faultGenerators = host2Generator.get(host.getId());
+        double minTime = Double.MAX_VALUE;
+        FaultGenerator generator = null;
+        if(faultGenerators != null && !faultGenerators.isEmpty())
+        {
+            for (FaultGenerator faultGenerator : faultGenerators) {
+                if (faultGenerator == null) {
+                    if (FaultTolerantTags.IF_TEST) {
+                        faultGenerator = new NormalGenerator();
+                        faultGenerator.initSamples(100, 100);
+                    } else
+                        return Double.MAX_VALUE;
+                }
+                double[] samples = faultGenerator.getCumulativeSamples();
+                // 如果错误时间点的最后一个都小于当前时间，我们生成一系列新的错误时间点
+                if (samples[samples.length - 1] < currentTime) {
+                    faultGenerator.extendSample();
+                    samples = faultGenerator.getCumulativeSamples();
+                }
+                for (double sample : samples) {
+                    //Log.printLine(sample);
+                    if (currentTime < sample) {
+                        //有错误
+                        nextTime = sample;
+                        break;
+                    }
+                }
+                if (nextTime < minTime) {
+                    minTime = nextTime;
+                    generator = faultGenerator;
+                }
+                //host2Generator.put(host.getId(), faultGenerator);
             }
         }
-        host2Generator.put(host.getId(), faultGenerator);
+        faultGenerators = gpu2Generator.get(host.getId());
+        if(faultGenerators != null && !faultGenerators.isEmpty())
+        {
+            for (FaultGenerator faultGenerator : faultGenerators) {
+                if (faultGenerator == null) {
+                    if (FaultTolerantTags.IF_TEST) {
+                        faultGenerator = new NormalGenerator();
+                        faultGenerator.initSamples(100, 100);
+                    } else
+                        return Double.MAX_VALUE;
+                }
+                double[] samples = faultGenerator.getCumulativeSamples();
+                // 如果错误时间点的最后一个都小于当前时间，我们生成一系列新的错误时间点
+                if (samples[samples.length - 1] < currentTime) {
+                    faultGenerator.extendSample();
+                    samples = faultGenerator.getCumulativeSamples();
+                }
+                for (double sample : samples) {
+                    //Log.printLine(sample);
+                    if (currentTime < sample) {
+                        //有错误
+                        nextTime = sample;
+                        break;
+                    }
+                }
+                if (nextTime < minTime) {
+                    minTime = nextTime;
+                    generator = faultGenerator;
+                }
+                //host2Generator.put(host.getId(), faultGenerator);
+            }
+        }
+        if(generator != null) {
+            Log.printLine("主机" + host.getName() + "的" + generator.getFaultType() + "发生故障, 时间为：" + nextTime);
+            lastHost.put(host.getId(), generator);
+        }
         return nextTime;
     }
 
     @Override
     public double hostRepairTime(Host host) {
-        FaultGenerator faultGenerator = host2Generator.get(host.getId());
+        FaultGenerator faultGenerator = lastHost.get(host.getId());
+        Log.printLine(host.getName() + "的" + faultGenerator.getFaultType() + "发生了故障，下一次恢复要再过" + faultGenerator.getRepairTime());
         return Math.max(0, faultGenerator.getRepairTime());
+    }
+
+    @Override
+    public String lastFaultType(Host h) {
+        if(lastHost.containsKey(h.getId()))
+            return lastHost.get(h.getId()).getFaultType();
+        return "";
     }
 
     public static void main(String[] args) {

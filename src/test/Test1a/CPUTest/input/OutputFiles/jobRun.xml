@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobRun>
+  <Job name="job_cpu_2">
+    <RunningRecord status="Success" host="host_cpu" start="0" end="3.93" duration="3.93" />
+    <RunningRecord status="Success" host="host_cpu" start="10" end="13.94" duration="3.94" />
+    <RunningRecord status="Success" host="host_cpu" start="20" end="23.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="30" end="33.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="40" end="43.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="50" end="53.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="60" end="63.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="70" end="73.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="80" end="83.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="90" end="93.96" duration="3.96" />
+  </Job>
+  <Job name="job_cpu_1">
+    <RunningRecord status="Success" host="host_cpu" start="0" end="3.93" duration="3.93" />
+    <RunningRecord status="Success" host="host_cpu" start="10" end="13.94" duration="3.94" />
+    <RunningRecord status="Success" host="host_cpu" start="20" end="23.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="30" end="33.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="40" end="43.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="50" end="53.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="60" end="63.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="70" end="73.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="80" end="83.96" duration="3.96" />
+    <RunningRecord status="Success" host="host_cpu" start="90" end="93.96" duration="3.96" />
+  </Job>
+</jobRun>

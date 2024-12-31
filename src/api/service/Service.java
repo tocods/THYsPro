@@ -7,6 +7,7 @@ import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import faulttolerant.FaultRecord;
 import faulttolerant.GPUWorkflowFaultDatacenter;
 import faulttolerant.GPUWorkflowFaultEngine;
+import faulttolerant.Topo;
 import faulttolerant.faultGenerator.FaultGenerator;
 import gpu.*;
 import gpu.allocation.VideoCardAllocationPolicy;
@@ -38,6 +39,7 @@ import workflow.GpuJob;
 import workflow.Kernel;
 import workflow.taskCluster.BasicClustering;
 
+import javax.print.Doc;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -100,7 +102,7 @@ public class Service {
                     new GridGpuVmAllocationPolicyBreadthFirst(hosts), storageList, 1);
             if(!faulttolerant.Parameters.host2FaultInject.isEmpty()) {
                 datacenter.setFaultToleranceEnabled();
-                for(Map.Entry<Host, FaultGenerator> h2f: faulttolerant.Parameters.host2FaultInject.entrySet()) {
+                for(Map.Entry<Host, List<FaultGenerator>> h2f: faulttolerant.Parameters.host2FaultInject.entrySet()) {
                     datacenter.setHostFaultGenerator(h2f.getKey(), h2f.getValue());
                 }
             }
@@ -148,12 +150,31 @@ public class Service {
             engine.submitVmList(new ArrayList<>());
             engine.initJobAllocationInterface(hosts, algorithm);
             int brokerId = engine.getId();
+            workflow.Parameters.engineID = brokerId;
             for(GpuCloudlet t: tasks) {
                 t.setUserId(brokerId);
-                t.setVmId(hosts.get(0).getId());
+                //Log.printLine("hahahaah " + ((GpuJob)t).getTasks().get(0).getGpuTask().getThreadsPerBlock());
+                if(((GpuJob)t).getHost() == null) {
+                    t.setVmId(hosts.get(0).getId());
+                    ((GpuJob) t).setHost(hosts.get(0));
+                }
             }
             engine.submitCloudletList(tasks);
-
+            Topo topo = new Topo();
+            topo.time = "0.00";
+            topo.hosts = new ArrayList<>();
+            for(PowerGpuHost host: hosts) {
+                Topo.TopoHost h = topo.new TopoHost();
+                h.hostName = host.getName();
+                h.softwares = new ArrayList<>();
+                for(GpuCloudlet t: tasks) {
+                    if(Objects.equals(((GpuJob) t).getHost().getName(), h.hostName)) {
+                        h.softwares.add(t.getName());
+                    }
+                }
+                topo.hosts.add(h);
+            }
+            faulttolerant.Parameters.topos.add(topo);
             //Log.disable();
             CloudSim.startSimulation();
             CloudSim.stopSimulation();
@@ -232,6 +253,21 @@ public class Service {
             r.setAttribute("isSuccessRebuild", record.ifSuccessRebuild);
             r.setAttribute("redundancyBefore", fo.format(record.redundancyBefore));
             r.setAttribute("redundancyAfter", fo.format(record.redundancyAfter));
+            r.setAttribute("faultType", record.faultType);
+            r.setAttribute("ifEmpty", record.ifEmpty);
+            r.setAttribute("failReason", record.failReason);
+            if(!record.host2Cals.isEmpty()) {
+                for(Map.Entry<String, List<String>> entry : record.host2Cals.entrySet()) {
+                    Element e = new Element("host");
+                    e.setAttribute("name", entry.getKey());
+                    for(String s : entry.getValue()) {
+                        Element ss = new Element("cal");
+                        ss.setAttribute("cal", s);
+                        e.addContent(ss);
+                    }
+                    r.addContent(e);
+                }
+            }
             doc.getRootElement().addContent(r);
             i++;
         }
@@ -290,6 +326,18 @@ public class Service {
             info.start = dft.format(gpuJob.getExecStartTime());
             info.end = dft.format(gpuJob.getFinishTime());
             info.host = gpuJob.getHost().getName();
+            info.compete = "100.0";
+
+            long len = 0;
+            for(GpuCloudlet cls: gpuJob.getTasks()) {
+                len += cls.getGpuTask().getTaskTotalLength();
+            }
+            long competeLen = len;
+            if(gpuJob.doneLen != -1)
+                competeLen = gpuJob.doneLen;
+            double compete = (double)competeLen / (double)len;
+            compete = compete * 100;
+            info.compete = dft.format(compete);
             at.addRule();
             if (gpuJob.getTasks().get(0).getGpuTask() == null) {
                 if(!jobRecord.containsKey(gpuJob.getName())) {
@@ -347,6 +395,7 @@ public class Service {
                 t.setAttribute("start", info.start);
                 t.setAttribute("end", info.end);
                 t.setAttribute("duration", info.duration);
+                t.setAttribute("compete", info.compete);
                 int id = 0;
                 for(TaskRunInfo entry: info.runInfos) {
                     Element gpu = new Element("KernelRecord");
@@ -371,6 +420,49 @@ public class Service {
 
         // 把xml文件输出到指定的位置
         xmlOutput.output(doc, new FileOutputStream(file));
+
+        root = new Element("jobRun");
+        doc = new Document(root);
+        r = new Element("Hosts");
+        for(Host h: datacenter.getHostList()) {
+            GpuHost host = (GpuHost) h;
+            Element ele = new Element("Host");
+            ele.setAttribute("name", host.getName());
+            for(Double failTime: host.getFailTimes()) {
+                Element e = new Element("failTime");
+                e.setAttribute("time", dft.format(failTime));
+                ele.addContent(e);
+            }
+            r.addContent(ele);
+        }
+        doc.getRootElement().addContent(r);
+        r = new Element("Run");
+        r.setAttribute("time", dft.format(Parameters.endTime));
+        doc.getRootElement().addContent(r);
+        file = new File(path + "\\hostFail.xml");
+        xmlOutput.output(doc, new FileOutputStream(file));
+
+
+        root = new Element("Topo");
+        doc = new Document(root);
+        for(Topo topo : faulttolerant.Parameters.topos) {
+            Element e = new Element("Topo");
+            e.setAttribute("time", topo.time);
+            for(Topo.TopoHost host: topo.hosts) {
+                Element e1 = new Element("Host");
+                e1.setAttribute("name", host.hostName);
+                for(String software: host.softwares) {
+                    Element e2 = new Element("Software");
+                    e2.setAttribute("name", software);
+                    e1.addContent(e2);
+                }
+                e.addContent(e1);
+            }
+            doc.getRootElement().addContent(e);
+        }
+        file = new File(path + "\\topoChange.xml");
+        xmlOutput.output(doc, new FileOutputStream(file));
+
 
         if(!jobs.isEmpty())
             return at.render();
@@ -467,7 +559,7 @@ public class Service {
             for (int pgpuId = 0; pgpuId < 4; pgpuId++) {
                 List<Pe> pes = new ArrayList<Pe>();
                 for (int peId = 0; peId < 100; peId++) {
-                    pes.add(new Pe(peId, new PeProvisionerSimple(mips * 10)));
+                    pes.add(new Pe(peId, new PeProvisionerSimple(mips * 10),  new PeProvisionerSimple(mips * 10),  new PeProvisionerSimple(mips * 10)));
                 }
                 Pgpu p = new Pgpu(pgpuId, GridVideoCardTags.NVIDIA_K1_GPU_TYPE, pes,
                         new GpuGddramProvisionerSimple(gddram), new GpuBwProvisionerShared(bw));
@@ -502,7 +594,7 @@ public class Service {
 
         for (int peId = 0; peId < 4; peId++) {
             // Create PEs and add these into a list.
-            peList.add(new Pe(0, new PeProvisionerSimple(mips)));
+            peList.add(new Pe(0, new PeProvisionerSimple(mips),  new PeProvisionerSimple(mips * 10),  new PeProvisionerSimple(mips * 10)));
         }
 
         // Create Host with its id and list of PEs and add them to the list of machines

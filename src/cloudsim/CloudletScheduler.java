@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import cloudsim.network.datacenter.NetworkCloudletSpaceSharedScheduler;
+import gpu.GpuCloudlet;
+import gpu.GpuTask;
+import gpu.ResGpuCloudlet;
 import org.apache.commons.collections.list.SynchronizedList;
 import workflow.GpuJob;
 
@@ -331,10 +334,62 @@ public abstract class CloudletScheduler {
 		this.cloudletExecList = cloudletExecList;
 	}
 
-	public void hostFail() {
-		this.cloudletExecList.clear();
-		this.cloudletPausedList.clear();
-		this.cloudletWaitingList.clear();
+	public void hostFail(Boolean ifGpu) {
+		List<ResCloudlet> toRemoveFrom = new ArrayList<>();
+		List<ResCloudlet> toRemove = new ArrayList<>();
+		for(ResCloudlet cl: this.cloudletPausedList) {
+			if(ifGpu && !((ResGpuCloudlet)cl).ifGPU)
+				continue;
+			Log.printLine("将" + ((GpuJob)(cl.getCloudlet())).getName() + "删除");
+			toRemoveFrom.add(cl);
+		}
+		this.cloudletPausedList.removeAll(toRemoveFrom);
+
+		for(ResCloudlet cl: this.cloudletExecList) {
+			if(((ResGpuCloudlet) cl).ifFromGpu) {
+				for(ResCloudlet cls: toRemoveFrom) {
+					ResGpuCloudlet rgcl = (ResGpuCloudlet)cl;
+					GpuTask task = rgcl.getGpuTask();
+					if (task.isThisResCloudlet(cls)) {
+						Log.printLine("resID: " + task.getResId() + " cloudletID: " + cls.getCloudlet().getCloudletId());
+						Log.printLine("将属于" + ((GpuJob)(cls.getCloudlet())).getName() +  "的"+ task.getName() + "放入队列");
+						toRemove.add(cl);
+					}
+				}
+			}
+//			if(ifGpu && !((ResGpuCloudlet)cl).ifGPU)
+//				continue;
+//			toRemove.add(cl);
+		}
+		this.cloudletExecList.removeAll(toRemove);
+		toRemove.clear();
+//		this.cloudletExecList.clear();
+//		for(ResCloudlet cl: this.cloudletPausedList) {
+//			if(ifGpu && !((ResGpuCloudlet)cl).ifGPU)
+//				continue;
+//			toRemove.add(cl);
+//		}
+//		this.cloudletPausedList.removeAll(toRemove);
+//		toRemove.clear();
+//		this.cloudletPausedList.clear();
+		for(ResCloudlet cl: this.cloudletWaitingList) {
+			if(((ResGpuCloudlet) cl).ifFromGpu) {
+				for(ResCloudlet cls: toRemoveFrom) {
+					ResGpuCloudlet rgcl = (ResGpuCloudlet)cl;
+					GpuTask task = rgcl.getGpuTask();
+					if (task.isThisResCloudlet(cls)) {
+						Log.printLine("将" + task.getName() + "放入队列");
+						toRemove.add(cl);
+					}
+				}
+			}
+//			if(ifGpu && !((ResGpuCloudlet)cl).ifGPU)
+//				continue;
+//			toRemove.add(cl);
+		}
+		this.cloudletWaitingList.removeAll(toRemove);
+		toRemove.clear();
+//		this.cloudletWaitingList.clear();
 		this.cloudletFailedList.clear();
 	}
 
@@ -405,34 +460,115 @@ public abstract class CloudletScheduler {
 		this.cloudletFailedList = cloudletFailedList;
 	}
 
-	public GpuJob jobFail(GpuJob gpuJob) {
-		GpuJob ret = null;
-		List<ResCloudlet> toRemove = new ArrayList<>();
-		for(ResCloudlet cl: getCloudletExecList()) {
+	public String jobFailType(GpuJob gpuJob) {
+		String ret = "";
+		ResGpuCloudlet clChose = null;
+		Boolean ifExist = false;
+		for (ResCloudlet cl : getCloudletPausedList()) {
+			ResGpuCloudlet rgcl2 = (ResGpuCloudlet) cl;
 			GpuJob job = (GpuJob) cl.getCloudlet();
 			if(job == gpuJob) {
-				//Log.printLine(job.getName() + "超时");
+				Log.printLine(job.getName() + "超时,将被删除");
+				clChose = rgcl2;
+				//clChose = (ResGpuCloudlet) cl;
+				break;
+			}
+		}
+		if(clChose == null) {
+			return "";
+		}
+		for(ResCloudlet cl: getCloudletExecList()) {
+			ResGpuCloudlet rgcl = (ResGpuCloudlet) cl;
+			if(((ResGpuCloudlet) cl).ifFromGpu) {
+				ifExist = true;
+				GpuTask task = rgcl.getGpuTask();
+				if(task.isThisResCloudlet(clChose)) {
+					ret = ((ResGpuCloudlet) cl).type;
+				}
+			}
+		}
+		for(ResCloudlet cl: getCloudletWaitingList()) {
+			ResGpuCloudlet rgcl = (ResGpuCloudlet) cl;
+			if(((ResGpuCloudlet) cl).ifFromGpu) {
+				ifExist = true;
+				GpuTask task = rgcl.getGpuTask();
+				if(task.isThisResCloudlet(clChose)) {
+					ret = ((ResGpuCloudlet) cl).type;
+				}
+			}
+		}
+		if(ifExist && ret == "")
+			return "CPU";
+		return ret;
+	}
+
+	public long jobFail(GpuJob gpuJob) {
+		GpuJob ret = null;
+		long rets = 0;
+		ResGpuCloudlet clChose = null;
+		List<ResCloudlet> toRemove = new ArrayList<>();
+		for (ResCloudlet cl : getCloudletPausedList()) {
+			ResGpuCloudlet rgcl2 = (ResGpuCloudlet) cl;
+			GpuJob job = (GpuJob) cl.getCloudlet();
+			if(job == gpuJob) {
+				Log.printLine(job.getName() + "超时,将被删除");
 				toRemove.add(cl);
 				ret = job;
+				clChose = rgcl2;
+				//clChose = (ResGpuCloudlet) cl;
+				break;
+			}
+		}
+		getCloudletPausedList().removeAll(toRemove);
+		toRemove = new ArrayList<>();
+		if(clChose == null) {
+			Log.printLine("没在" + gpuJob.getHost().getName() + "上找到" + gpuJob.getName());
+//			for(ResCloudlet cl: getCloudletExecList()) {
+//				ResGpuCloudlet rgcl = (ResGpuCloudlet) cl;
+//				GpuJob job = (GpuJob) cl.getCloudlet();
+//				if(job == gpuJob) {
+//					//Log.printLine(job.getName() + "超时");
+//					toRemove.add(cl);
+//					ret = job;
+//					//clChose = (ResGpuCloudlet) cl;
+//					break;
+//				}
+//			}
+//			getCloudletExecList().removeAll(toRemove);
+//			for(ResCloudlet cl: toRemove) {
+//				cl.finalizeCloudlet();
+//			}
+//			return ret;
+			return rets;
+		}
+		for(ResCloudlet cl: getCloudletExecList()) {
+			ResGpuCloudlet rgcl = (ResGpuCloudlet) cl;
+			if(((ResGpuCloudlet) cl).ifFromGpu) {
+				GpuTask task = rgcl.getGpuTask();
+				if(task.isThisResCloudlet(clChose)) {
+					toRemove.add(cl);
+				}
 			}
 		}
 		getCloudletExecList().removeAll(toRemove);
 		for(ResCloudlet cl: toRemove) {
 			cl.finalizeCloudlet();
+			rets += cl.getCloudlet().getCloudletFinishedSoFar();
 		}
 		toRemove = new ArrayList<>();
-		for(ResCloudlet cl: getCloudletPausedList()) {
-			GpuJob job = (GpuJob) cl.getCloudlet();
-			if(job == gpuJob) {
-				//Log.printLine(job.getName() + "超时");
-				toRemove.add(cl);
-				ret = job;
+		for(ResCloudlet cl: getCloudletWaitingList()) {
+			ResGpuCloudlet rgcl = (ResGpuCloudlet) cl;
+			if(((ResGpuCloudlet) cl).ifFromGpu) {
+				GpuTask task = rgcl.getGpuTask();
+				if(task.isThisResCloudlet(clChose)) {
+					toRemove.add(cl);
+				}
 			}
 		}
-		getCloudletPausedList().removeAll(toRemove);
+		getCloudletWaitingList().removeAll(toRemove);
 		for(ResCloudlet cl: toRemove) {
 			cl.finalizeCloudlet();
 		}
-		return ret;
+		return rets;
 	}
 }

@@ -115,7 +115,7 @@ public abstract class CloudletSchedulerTimeShared extends CloudletScheduler {
 		if (pesInUse > currentCPUs) {
 			capacity /= pesInUse;
 		} else {
-			capacity /= currentCPUs;
+			capacity = mipsShare.get(0);
 		}
 		return capacity;
 	}
@@ -207,28 +207,13 @@ public abstract class CloudletSchedulerTimeShared extends CloudletScheduler {
 
 	@Override
 	public void cloudletFinish(ResCloudlet rcl) {
+		//Log.printLine("jahah");
 		// 对任务进行错误注入
-		Boolean ifFault = Parameters.injector.ifJobFail((GpuJob) rcl.getCloudlet());
-		if(ifFault) {
-			GpuJob job = (GpuJob) rcl.getCloudlet();
-			// 重置任务的finishedSorFar
-			job.reset();
-			DecimalFormat format = new DecimalFormat("###.##");
-			FaultRecord record = new FaultRecord();
-			record.ifFalseAlarm = "True";
-			record.fault = job.getName();
-			record.time = format.format(CloudSim.clock());
-			faulttolerant.Parameters.faultRecordList.add(record);
-			// 将失败的任务重运行
-			if(!((ResGpuCloudlet)rcl).ifGPU) {
-				cloudletSubmitWithoutGPU(job, 0);
-			}else
-				cloudletSubmit(job, 0);
-		} else {
-			rcl.setCloudletStatus(Cloudlet.SUCCESS);
-			rcl.finalizeCloudlet();
-			getCloudletFinishedList().add(rcl);
-		}
+		//Boolean ifFault = Parameters.injector.ifJobFail((GpuJob) rcl.getCloudlet());
+		Boolean ifFault = false;
+		rcl.setCloudletStatus(Cloudlet.SUCCESS);
+		rcl.finalizeCloudlet();
+		getCloudletFinishedList().add(rcl);
 	}
 
 	@Override
@@ -248,6 +233,7 @@ public abstract class CloudletSchedulerTimeShared extends CloudletScheduler {
 		if (found) {
 			ResCloudlet rgl = getCloudletPausedList().remove(position);
 			rgl.setCloudletStatus(Cloudlet.INEXEC);
+			Log.printLine("1");
 			getCloudletExecList().add(rgl);
 
 			// calculate the expected time for cloudlet completion
@@ -272,7 +258,7 @@ public abstract class CloudletSchedulerTimeShared extends CloudletScheduler {
 		for (int i = 0; i < cloudlet.getNumberOfPes(); i++) {
 			rcl.setMachineAndPeId(0, i);
 		}
-
+		Log.printLine("2");
 		getCloudletExecList().add(rcl);
 
 		// use the current capacity to estimate the extra amount of

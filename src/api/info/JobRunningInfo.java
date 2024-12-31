@@ -23,5 +23,7 @@ public class JobRunningInfo {
 
     public String status = "";
 
+    public String compete = "";
+
     public List<TaskRunInfo> runInfos = new ArrayList<>();
 }

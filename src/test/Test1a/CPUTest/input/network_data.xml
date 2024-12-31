@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<Network>
+    <Hosts>
+        <NormalHosts/>
+        <UdpHosts/>
+        <TcpHosts/>
+        <RdmaHosts/>
+        <TsnHosts/>
+        <DdsHosts/>
+        <AllHosts/>
+    </Hosts>
+    <Switches>
+        <NormalSwitches/>
+        <UdpSwitches/>
+        <TcpSwitches/>
+        <RdmaSwitches/>
+        <TsnSwitches/>
+        <DdsSwitches/>
+    </Switches>
+    <Links/>
+    <GlobalSetting content="{&quot;Tcp&quot;: {&quot;forwarding&quot;: &quot;false&quot;, &quot;retryTimeout&quot;: &quot;1s&quot;, &quot;retryCount&quot;: &quot;3&quot;, &quot;cacheTimeout&quot;: &quot;100s&quot;, &quot;tcpAlgorithmClass&quot;: &quot;TcpReno&quot;}, &quot;Rdma&quot;: {&quot;connectionType&quot;: &quot;RELIABLE_CONNECTION&quot;, &quot;maxSendQueueSize&quot;: &quot;256&quot;, &quot;maxRecvQueueSize&quot;: &quot;256&quot;}, &quot;common&quot;: {&quot;queueTypename&quot;: &quot;DropTailQueue&quot;, &quot;queuePacketCapacity&quot;: &quot;20&quot;, &quot;TsnQueue&quot;: []}}"/>
+</Network>

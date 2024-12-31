@@ -20,7 +20,9 @@ public class Tester {
         TEST_1F("Test1df"),
         Test_1G("Test1eg"),
         TEST_3D("Test3d"),
-        TEST_3E1("Test3e\\Test3e1");
+        TEST_3E1("Test3e\\Test3e1"),
+
+        TEST_LARGE("TestLarge");
 
         private String path;
         private TestEnum(String path) {
@@ -112,5 +114,9 @@ public class Tester {
         testTruePath(TestEnum.TEST_3E1, 100.0);
     }
 
+    @Test
+    public void test_large() {
+        testTruePath(TestEnum.TEST_LARGE, 1000.0);
+    }
 
 }

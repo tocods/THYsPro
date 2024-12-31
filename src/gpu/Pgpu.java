@@ -35,6 +35,10 @@ public class Pgpu {
 	private List<Pe> peList;
 	private List<Double> mips;
 
+	private List<Double> imips;
+
+	private List<Double> mmips;
+
 	private Integer maxBlockPerSM;
 
 	private Integer corePerSM;
@@ -90,6 +94,14 @@ public class Pgpu {
 		for (Pe pe : peList) {
 			mips.add((double) pe.getMips());
 		}
+		imips = new ArrayList<>();
+		for (Pe pe : peList) {
+			imips.add((double) pe.getIMips());
+		}
+		mmips = new ArrayList<>();
+		for (Pe pe : peList) {
+			mmips.add((double) pe.getMMips());
+		}
 	}
 
 	/**
@@ -109,7 +121,7 @@ public class Pgpu {
 	}
 
 	public double updateGpuTaskProcessing(double currentTime) {
-		return getGpuTaskScheduler().updateGpuTaskProcessing(currentTime, mips);
+		return getGpuTaskScheduler().updateGpuTaskProcessing(currentTime, mips, imips, mmips);
 	}
 
 	public int getId() {
