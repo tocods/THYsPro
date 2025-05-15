@@ -1,5 +1,8 @@
 package workflow;
 
+import org.zeromq.ZMQ;
+import org.zeromq.ZContext;
+
 public class Parameters {
     public enum JobAllocationAlgorithm {
         BEST_FIT, DOT_PROD, RANDOM, PACKING, RR, FGD
@@ -12,4 +15,7 @@ public class Parameters {
     public static double duration = Double.MAX_VALUE;
 
     public static int engineID = -1;
+
+    public static ZContext context = new ZContext(1);
+    public static ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
 }

@@ -3,6 +3,7 @@ package api.info;
 import cloudsim.Log;
 import cloudsim.UtilizationModelFull;
 import com.alibaba.fastjson.annotation.JSONField;
+import comm.Packet;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import faulttolerant.faultGenerator.FaultGenerator;
@@ -30,6 +31,8 @@ public class JobInfo {
     public FaultGenerator generator = null;
 
     public String host;
+
+    public List<ChildInfo> children;
 
     public GpuJob tran2Job(int id, int taskIdStart, int gpuIdStart) {
         if(gpuTask == null || gpuTask.kernels.isEmpty()) {
@@ -72,6 +75,16 @@ public class JobInfo {
         job.setPeriod(period);
         job.setName(name);
         job.setDeadline(deadline);
+        if(!children.isEmpty()) {
+            for(ChildInfo p: children) {
+                Packet packet = new Packet();
+                packet.setTxt(String.valueOf(p.size));
+                packet.setSrc(name);
+                packet.setSrc_task_name(name);
+                packet.setDst(p.child);
+                job.packets.add(packet);
+            }
+        }
         return job;
     }
 

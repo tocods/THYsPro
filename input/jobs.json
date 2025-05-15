@@ -1,56 +1,75 @@
 [
     {
         "name": "job1",
-        "period": 10.0,
+        "period": "10",
         "cpu_task": {
-            "ram": 200.0,
+            "ram": "100",
             "pes_number": 1,
-            "length": 58400,
-            "file_size": 0,
-            "output_size": 0
+            "length": 1000
         },
         "gpu_task": {
             "kernels": [
                 {
-                    "block_num": 10,
-                    "thread_length": 200,
-                    "thread_num": 1024
-                },
-                {
-                    "block_num": 5,
-                    "thread_length": 200,
-                    "thread_num": 1024
+                    "block_num": 1,
+                    "thread_num": 1,
+                    "thread_length": 10,
+                    "hardware": "CPU",
+                    "requested_gddram_size": 0,
+                    "task_input_size": 0,
+                    "task_output_size": 0,
+                    "type": "\u6d6e\u70b9",
+                    "calcuType": 0
                 }
             ],
-            "requested_gddram_size": 800,
-            "task_input_size": 100,
-            "task_output_size": 100
+            "requested_gddram_size": 0,
+            "task_input_size": 0,
+            "task_output_size": 0
         },
-        "generator": null
+        "host": "host2",
+        "ifManager": false,
+        "ifInMaster": false,
+        "deadline": "9",
+        "appArgs": [],
+        "children": [
+            {
+                "child": "job2",
+                "size": 100
+            }
+        ],
+        "middlewareArgs": []
     },
     {
         "name": "job2",
-        "period": 0.0,
+        "period": "10",
         "cpu_task": {
-            "ram": 200.0,
+            "ram": "100",
             "pes_number": 1,
-            "length": 38400,
-            "file_size": 0,
-            "output_size": 0
-
+            "length": 1000
         },
-        "gpu_task": null
-    },
-    {
-        "name": "job3",
-        "period": 0.0,
-        "cpu_task": {
-            "ram": 200.0,
-            "pes_number": 4,
-            "length": 38400,
-            "file_size": 0,
-            "output_size": 0
+        "gpu_task": {
+            "kernels": [
+                {
+                    "block_num": 1,
+                    "thread_num": 1,
+                    "thread_length": 10,
+                    "hardware": "CPU",
+                    "requested_gddram_size": 0,
+                    "task_input_size": 0,
+                    "task_output_size": 0,
+                    "type": "\u6d6e\u70b9",
+                    "calcuType": 0
+                }
+            ],
+            "requested_gddram_size": 0,
+            "task_input_size": 0,
+            "task_output_size": 0
         },
-        "gpu_task": null
+        "host": "host2",
+        "ifManager": false,
+        "ifInMaster": false,
+        "deadline": "9",
+        "appArgs": [],
+        "children": [],
+        "middlewareArgs": []
     }
 ]

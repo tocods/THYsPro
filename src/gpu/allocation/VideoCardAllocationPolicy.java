@@ -5,7 +5,7 @@ import gpu.Vgpu;
 import gpu.VideoCard;
 
 import java.util.*;
-
+import fncs.JNIfncs;
 /**
  * {@link VideoCardAllocationPolicy} is an abstract class that represents the
  * provisioning of video cards to vgpus in a host.

@@ -9,5 +9,6 @@ public class FaultTolerantTags {
 
     public final static int RECORD_FAULT_RECORD = WorkflowSimTags.WORKFLOW_TAG_LAST + 3;
 
+    public final static int FAULT_TAG_LAST = RECORD_FAULT_RECORD + 1;
     public static boolean IF_TEST = false;
 }

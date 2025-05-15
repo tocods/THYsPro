@@ -1,50 +1,30 @@
 [
     {
         "name": "host1",
-        "video_card_infos": [
-            {
-                "gpu_infos": [
-                    {
-                        "cores": 2560,
-                        "core_per_sm": 64,
-                        "max_block_per_sm": 10,
-                        "gddram": 8000,
-                        "flops_per_core": 10000
-                    },
-                    {
-                        "cores": 2560,
-                        "core_per_sm": 64,
-                        "max_block_per_sm": 10,
-                        "gddram": 8000,
-                        "flops_per_core": 10000
-                    },
-                    {
-                        "cores": 2560,
-                        "core_per_sm": 64,
-                        "max_block_per_sm": 10,
-                        "gddram": 8000,
-                        "flops_per_core": 10000
-                    },
-                    {
-                        "cores": 2560,
-                        "core_per_sm": 64,
-                        "max_block_per_sm": 10,
-                        "gddram": 8000,
-                        "flops_per_core": 10000
-                    }
-                ],
-                "name": "GeForce RTX 4090",
-                "pcie_bw": 16
-            }
-        ],
+        "video_card_infos": [],
         "cpu_infos": [
             {
-                "cores": 4,
-                "mips": 38400,
-                "name": "Intel Core i7-7700K"
+                "cores": 2,
+                "mips": 10,
+                "int_mips": 10,
+                "matrix_mips": 10
             }
         ],
-        "ram": 16,
-        "generator": null
+        "ram": 4,
+        "ifMaster": true
+    },
+    {
+        "name": "host2",
+        "video_card_infos": [],
+        "cpu_infos": [
+            {
+                "cores": 2,
+                "mips": 10,
+                "int_mips": 10,
+                "matrix_mips": 10
+            }
+        ],
+        "ram": 4,
+        "ifMaster": false
     }
 ]

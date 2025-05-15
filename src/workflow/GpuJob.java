@@ -1,6 +1,8 @@
 package workflow;
 
+
 import cloudsim.*;
+import comm.Packet;
 import faulttolerant.FaultRecord;
 import gpu.GpuCloudlet;
 import gpu.GpuTask;
@@ -30,21 +32,37 @@ public class GpuJob extends GpuCloudlet {
 
     public long doneLen = -1;
 
+    public List<Packet> packets;
+
+    public List<String> parents;
 
     public GpuJob(int gpuCloudletId, long cloudletLength, int pesNumber, long cloudletFileSize, long cloudletOutputSize, UtilizationModel utilizationModelCpu, UtilizationModel utilizationModelRam, UtilizationModel utilizationModelBw, GpuTask gpuTask) {
         super(gpuCloudletId, cloudletLength, pesNumber, cloudletFileSize, cloudletOutputSize, utilizationModelCpu, utilizationModelRam, utilizationModelBw, gpuTask);
         host = null;
         tasks = new ArrayList<>();
+        packets = new ArrayList<>();
+        parents = new ArrayList<>();
     }
 
     public GpuJob(int jobId, long jobLength, GpuTask t) {
         super(jobId, jobLength, 1, 0, 0, new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull(), t);
         host = null;
         tasks = new ArrayList<>();
+        packets = new ArrayList<>();
+        parents = new ArrayList<>();
     }
 
     @Override
     protected void setGpuTask(GpuTask gpuTask) {
+    }
+
+    public void receivePacket() {
+        if(!packets.isEmpty())
+            packets.remove(packets.size() - 1);
+    }
+
+    public boolean ifReceiveAll() {
+        return packets.isEmpty();
     }
 
     @Override

@@ -16,14 +16,15 @@ import gpu.allocation.VideoCardAllocationPolicyNull;
 import gpu.power.PowerGpuHost;
 import gpu.power.models.GpuHostPowerModelLinear;
 import lombok.Setter;
+import org.apache.commons.math3.util.Pair;
 import workflow.GpuJob;
 import workflow.Parameters;
+import fncs.JNIfncs;
+import org.zeromq.ZMQ;
+import org.zeromq.ZContext;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class SimEngine {
     private List<PowerGpuHost> hosts;
@@ -103,21 +104,16 @@ public class SimEngine {
     public Result parseXmlOfJob(String path) {
         Log.printLine(String.join("", Collections.nCopies(100, "-")));
         Log.printLine("解析任务信息文件 " + path);
-        Result ret = null;
+        GpuJob j = null;
         String mes = parser.parseJobXml(new File(path));
         for(JobInfo jobInfo: parser.getJobInfos()) {
-            ret = addJob(jobInfo);
+            j = addJob(jobInfo);
             if(jobInfo.generator != null) {
                 GpuJob job = (GpuJob) jobs.get(jobs.size() - 1);
                 faulttolerant.Parameters.job2FaultInject.put(job.getName(), jobInfo.generator);
                 for(GpuCloudlet cl: job.getTasks()) {
                     faulttolerant.Parameters.job2FaultInject.put(cl.getName(), jobInfo.generator);
                 }
-            }
-            if(ret.ifError()) {
-                Log.printLine(ret.getMessage());
-                jobs = new ArrayList<>();
-                return ret;
             }
         }
         return Result.success(mes);
@@ -126,10 +122,20 @@ public class SimEngine {
     public Result parseJsonOfJob(String path) {
         Log.printLine(String.join("", Collections.nCopies(100, "-")));
         Log.printLine("解析任务信息文件 " + path);
-        Result ret = null;
+        GpuJob j = null;
         List<JobInfo> jobInfos = jsonParser.parseJobs(path);
+        Map<String, HashSet<GpuCloudlet>> c2p = new HashMap<>();
         for(JobInfo jobInfo: jobInfos) {
-            ret = addJob(jobInfo);
+            j = addJob(jobInfo);
+            for(ChildInfo c: jobInfo.children) {
+                if(c2p.containsKey(c.child)) {
+                    c2p.get(c.child).add(j);
+                }else{
+                    HashSet<GpuCloudlet> tmp = new HashSet<>();
+                    tmp.add(j);
+                    c2p.put(c.child, tmp);
+                }
+            }
             if(jobInfo.generator != null) {
                 GpuJob job = (GpuJob) jobs.get(jobs.size() - 1);
                 faulttolerant.Parameters.job2FaultInject.put(job.getName(), jobInfo.generator);
@@ -137,12 +143,16 @@ public class SimEngine {
                     faulttolerant.Parameters.job2FaultInject.put(cl.getName(), jobInfo.generator);
                 }
             }
-            if(ret.ifError()) {
-                Log.printLine(ret.getMessage());
-                jobs = new ArrayList<>();
-                return ret;
+        }
+        for(GpuCloudlet jo: jobs){
+            GpuJob job = (GpuJob) jo;
+            if(c2p.containsKey(job.getName())) {
+                HashSet<GpuCloudlet> ps = c2p.get(job.getName());
+                for(GpuCloudlet p: ps)
+                    job.addParent(p);
             }
         }
+
         return Result.success("");
     }
 
@@ -230,7 +240,7 @@ public class SimEngine {
      * 创建1个新的任务
 
      */
-    public Result addJob(JobInfo jobInfo) {
+    public GpuJob addJob(JobInfo jobInfo) {
         GpuJob job = jobInfo.tran2Job(cloudletId, taskId, gpuId);
         Log.printLine(jobInfo.host);
         if(!jobInfo.host.equals("")) {
@@ -247,7 +257,7 @@ public class SimEngine {
         cloudletId ++;
         taskId += job.getTasks().size();
         gpuId += job.getTasks().size();
-        return Result.success(null);
+        return job;
     }
 
     public Parameters.JobAllocationAlgorithm getAlgorithm(Integer i) {
@@ -262,14 +272,19 @@ public class SimEngine {
     }
 
     public static void main(String[] args) {
+        JNIfncs.initialize();
         SimEngine engine = new SimEngine();
 //        String outPath = System.getProperty("user.dir") + "\\OutputFiles";
         String outPath = args[0];
+        outPath = "/Users/davidt/Library/Mobile Documents/com~apple~CloudDocs/gpuworkflowsim/out";
         String jobPath = args[2];
+        jobPath = "/Users/davidt/Library/Mobile Documents/com~apple~CloudDocs/gpuworkflowsim/input/jobs.json";
         String hostPath = args[1];
+        hostPath = "/Users/davidt/Library/Mobile Documents/com~apple~CloudDocs/gpuworkflowsim/input/hosts.json";
         String faultPath = args[3];
-        Integer algorithm = Integer.parseInt(args[4]);
-        Double duration = Double.parseDouble(args[5]);
+        faultPath = "/Users/davidt/Library/Mobile Documents/com~apple~CloudDocs/gpuworkflowsim/input/faults.json";
+        Integer algorithm = -1;
+        Double duration = 100.0;
         if(duration > 0)
             Parameters.duration = duration;
 //        engine.parseXmlOfHost(System.getProperty("user.dir") + "\\input\\Hosts.xml");

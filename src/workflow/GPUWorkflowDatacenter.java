@@ -474,7 +474,7 @@ public class GPUWorkflowDatacenter extends PowerGpuDatacenter {
         for (Host host: getHostList()) {
             while (host.isFinishedCloudlets()) {
                 Cloudlet cl = host.getNextFinishedCloudlet();
-                Log.printLine(((GpuJob)cl).getName() + "执行结束!");
+                Log.printLine(CloudSim.clock() + ": " + ((GpuJob)cl).getName() + "执行结束!");
                 sendNow(getId(), WorkflowSimTags.WORKFLOW_CLOUDLET_FINISH, cl);
             }
         }

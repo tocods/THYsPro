@@ -1,6 +1,7 @@
 package workflow;
 
 import api.service.Parameters;
+import comm.Api;
 import faulttolerant.faultGenerator.FaultGenerator;
 import gpu.GpuCloudlet;
 import gpu.GpuDatacenterBroker;
@@ -204,46 +205,30 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
      */
     protected void doTaskDeliver() throws Exception {
         List<GpuJob> tasks2Submit = new ArrayList<>();
-//        for(Cloudlet c: getCloudletList()) {
-//            GpuJob job = (GpuJob) c;
-//            boolean ifAllParentFinish = true;
-//            for(Cloudlet parent: job.getParent()){
-//                if(!getCloudletReceivedList().contains(parent)){
-//                    ifAllParentFinish = false;
-//                    break;
-//                }
-//            }
-//            if(ifAllParentFinish)
-//                tasks2Submit.add(job);
-//        }
-//        getCloudletList().removeAll(tasks2Submit);
-//        List<GpuJob> jobs = doSchedule(tasks2Submit);
-//        for(GpuJob job: jobs) {
-//            if(job.getPeriod() != 0 && job.getExecTime() == 0) {
-//                jobNeedRepeat++;
-//                haveJobRepeat = true;
-//                if(!jobRepeat.containsKey(job.getName())) {
-//                    jobRepeat.put(job.getName(), 0);
-//                    send(getId(), job.getPeriod(), WorkflowSimTags.WORKFLOW_CLOUDLET_NEXT_PERIOD, job);
-//                }
-//            }
-//            int datacenterId = host2Datacenter.get(job.getVmId());
-//            sendNow(datacenterId, CloudSimTags.CLOUDLET_SUBMIT, job);
-//            cloudletsSubmitted ++;
-//            getCloudletSubmittedList().add(job);
-//        }
         for(Cloudlet c: getCloudletList()) {
             GpuJob job = (GpuJob) c;
-            tasks2Submit.add(job);
+            boolean ifAllParentFinish = true;
+            for(Cloudlet parent: job.getParent()){
+                Log.printLine(((GpuJob)parent).getName()+ " is parent of " + job.getName());
+                if(!getCloudletReceivedList().contains(parent)){
+                    ifAllParentFinish = false;
+                    break;
+                }
+            }
+            if(ifAllParentFinish)
+                tasks2Submit.add(job);
+            else
+                Log.printLine(job.getName() + " cannot be delivered");
         }
+        getCloudletList().removeAll(tasks2Submit);
         for(GpuJob job: tasks2Submit) {
             if(job.getPeriod() != 0 && job.getExecTime() == 0) {
                 jobNeedRepeat++;
                 haveJobRepeat = true;
                 if(!jobRepeat.containsKey(job.getName())) {
                     jobRepeat.put(job.getName(), 0);
-                    send(getId(), job.getPeriod(), WorkflowSimTags.WORKFLOW_CLOUDLET_NEXT_PERIOD, job);
-                    send(getId(), job.getDeadline(), WorkflowSimTags.WORKFLOW_CLOUDLET_DEADLINE, job);
+                    //send(getId(), job.getPeriod(), WorkflowSimTags.WORKFLOW_CLOUDLET_NEXT_PERIOD, job);
+                    //send(getId(), job.getDeadline(), WorkflowSimTags.WORKFLOW_CLOUDLET_DEADLINE, job);
                 }
             }
             int datacenterId = host2Datacenter.get(job.getVmId());
@@ -275,7 +260,7 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
         clearDatacenters();
         // 通知数据中心仿真结束
         finishExecution();
-
+        Api.end();
         CloudSim.abruptallyTerminate();
     }
 
@@ -322,6 +307,7 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
                 doNext((GpuJob) task);
             }
         }
+
         if(ifFinish()) {
             Log.printLine("仿真结束");
             // 任务全部执行完成，仿真结束

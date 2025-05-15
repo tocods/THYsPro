@@ -2,6 +2,8 @@ package api.service;
 
 import api.info.JobRunningInfo;
 import api.info.TaskRunInfo;
+import comm.CommEngine;
+import comm.Packet;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import faulttolerant.FaultRecord;
@@ -116,10 +118,10 @@ public class Service {
      * 根据{@link GpuCloudlet}队列创建工作流引擎
      * @return 工作流引擎
      */
-    private GPUWorkflowFaultEngine createBroker() {
-        GPUWorkflowFaultEngine broker = null;
+    private CommEngine createBroker() {
+        CommEngine broker = null;
         try {
-            broker = new GPUWorkflowFaultEngine("Broker");
+            broker = new CommEngine("Broker");
         } catch (Exception e) {
             return null;
         }
@@ -158,6 +160,7 @@ public class Service {
                     t.setVmId(hosts.get(0).getId());
                     ((GpuJob) t).setHost(hosts.get(0));
                 }
+                Log.printLine("pac size: " + ((GpuJob)t).packets.size());
             }
             engine.submitCloudletList(tasks);
             Topo topo = new Topo();

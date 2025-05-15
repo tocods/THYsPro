@@ -4,6 +4,7 @@ import cloudsim.Cloudlet;
 import cloudsim.Consts;
 import cloudsim.Log;
 import cloudsim.core.CloudSim;
+import comm.Api;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +76,9 @@ public class ResGpuTask {
 
 	private long outputSize;
 
+
+	private List<String> send2;
+
 	public enum  TransferState{
 				H2D, D2H, IN_HOST, IN_DEVICE
 	}
@@ -93,6 +97,7 @@ public class ResGpuTask {
 		duration = 0;
 		inputSize = task.getTaskInputSize();
 		outputSize = task.getTaskOutputSize();
+		send2 = new ArrayList<>();
 		// when a new ResGpuTask is created, then it will automatically set
 		// the submission time and other properties, such as remaining length
 		init();
@@ -117,6 +122,11 @@ public class ResGpuTask {
 		inputSize = task.getTaskInputSize();
 		outputSize = task.getTaskOutputSize();
 		init();
+	}
+
+	public void sendMessages() {
+		for(String s: send2)
+			Api.publish(Api.CommType.SEND_WITHOUT_REPLY, s);
 	}
 
 	/**

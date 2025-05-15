@@ -8,19 +8,14 @@
 
 package cloudsim.core;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import cloudsim.Log;
 import cloudsim.core.predicates.Predicate;
 import cloudsim.core.predicates.PredicateAny;
 import cloudsim.core.predicates.PredicateNone;
+import comm.Api;
+import comm.Event;
 
 /**
  * This class extends the CloudSimCore to enable network simulation in CloudSim. Also, it disables
@@ -757,8 +752,26 @@ public class CloudSim {
 		if (e.eventTime() < clock) {
 			throw new IllegalArgumentException("Past event detected.");
 		}
-		clock = e.eventTime();
+		// 同步时间
+		Log.printLine("同步时间: " + e.eventTime());
+		double next_time = e.eventTime() * 1000; // fncs接受不了小数时间
+		Log.printLine("请求时间: " + next_time);
+		double true_next = Api.timeRequest((long) Math.ceil(next_time));
+		Log.printLine("request" +  next_time/1000 + " next time: " + true_next / 1000);
+		clock = true_next / 1000;
 
+		// 获取其他仿真器传来的事件
+		String[] events = Api.getEvents();
+		List<Event> tran2E = new ArrayList<>();
+		for(String s: events) {
+			Event event = Event.toEvent(Api.getValue(s));
+			Log.printLine("收到事件");
+			tran2E.add(event);
+		}
+
+		// TODO：更新内部状态
+		doUpdate(tran2E);
+		// TODO：向其他仿真器传递事件
 		// Ok now process it
 		switch (e.getType()) {
 			case SimEvent.ENULL:
@@ -804,6 +817,14 @@ public class CloudSim {
 
 			default:
 				break;
+		}
+	}
+
+	private static void doUpdate(List<Event> events) {
+		for(Event e: events) {
+			String src = e.src_name;
+			Integer entityId = workflow.Parameters.engineID;
+			send(0, entityId, 0, Api.RECEIVE_EVENT, src);
 		}
 	}
 
