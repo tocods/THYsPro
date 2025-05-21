@@ -48,8 +48,10 @@ public class GPUWorkflowEngine extends GpuDatacenterBroker {
 
     @Override
     public void startEntity() {
-        if(workflow.Parameters.duration != Double.MAX_VALUE)
+        if(workflow.Parameters.duration != Double.MAX_VALUE) {
+            Log.printLine("yes ri");
             send(getId(), workflow.Parameters.duration, WorkflowSimTags.WORKFLOW_CLOUDLET_END_SIM);
+        }
         super.startEntity();
     }
 

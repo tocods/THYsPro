@@ -101,7 +101,7 @@ public class Service {
         GPUWorkflowFaultDatacenter datacenter = null;
         try {
             datacenter = new GPUWorkflowFaultDatacenter("Datacenter", characteristics,
-                    new GridGpuVmAllocationPolicyBreadthFirst(hosts), storageList, 1);
+                    new GridGpuVmAllocationPolicyBreadthFirst(hosts), storageList, 2);
             if(!faulttolerant.Parameters.host2FaultInject.isEmpty()) {
                 datacenter.setFaultToleranceEnabled();
                 for(Map.Entry<Host, List<FaultGenerator>> h2f: faulttolerant.Parameters.host2FaultInject.entrySet()) {
@@ -204,8 +204,18 @@ public class Service {
         Element r = null;
         int i = 0;
         DecimalFormat dft = new DecimalFormat("###.##");
+        for(PowerGpuHost h: hosts) {
+            Log.printLine("name is " + h.getName());
+            Log.printLine("cpu: ");
+            for(double d: datacenter.getCpuUtilOfHost(h))
+                Log.printLine(d);
+            Log.printLine("ram: ");
+            for(double d: datacenter.getRamUtilOfHost(h))
+                Log.printLine(d);
+        }
+        int size = datacenter.getCpuUtilOfHost(hosts.get(0)).size();
         while(true) {
-            if(i >= Parameters.endTime.intValue())
+            if(i >= size)
                 break;
             r = new Element("Util");
             r.setAttribute("time", String.valueOf(i));

@@ -150,6 +150,7 @@ public class GPUWorkflowDatacenter extends PowerGpuDatacenter {
                 Log.printLine("GPU任务预计完成时间： " + estimatedFinishTime);
                 // if this task is in the exec queue
                 if (estimatedFinishTime > 0.0 && !Double.isInfinite(estimatedFinishTime)) {
+                    Log.printLine("asassas");
                     send(getId(), Math.max(estimatedFinishTime, CloudSim.getMinTimeBetweenEvents() + 0.1), GpuCloudSimTags.VGPU_DATACENTER_EVENT);
                 }
                 gt.setExecStartTime(CloudSim.clock());
@@ -171,7 +172,7 @@ public class GPUWorkflowDatacenter extends PowerGpuDatacenter {
                 assert host != null;
                 GpuCloudletSchedulerTimeShared schedulerTimeShared = (GpuCloudletSchedulerTimeShared) host.getCloudletScheduler();
                 double estimatedFinishTime = schedulerTimeShared.taskSubmit(gt);
-                //Log.printLine("CPU任务预计完成时间： " + estimatedFinishTime);
+                Log.printLine("CPU任务预计完成时间： " + estimatedFinishTime);
                 gt.setExecStartTime(CloudSim.clock());
                 // if this task is in the exec queue
                 if (estimatedFinishTime > 0.0 && !Double.isInfinite(estimatedFinishTime)) {
@@ -398,10 +399,11 @@ public class GPUWorkflowDatacenter extends PowerGpuDatacenter {
            //Log.printLine(((GpuCloudlet) cl).getName());
             assert host != null;
             double estimatedFinishTime = host.submitJob((GpuJob) cl);
-
+            Log.printLine("hahaahah");
             // 任务成功放入执行队列中
             if (estimatedFinishTime > 0.0 && !Double.isInfinite(estimatedFinishTime)) {
                 //estimatedFinishTime += fileTransferTime;
+                Log.printLine("MMMMMMMM");
                 Log.printLine(CloudSim.clock() + ": " + ((GpuJob)cl).getName() + "被提交到主机" + host.getName() + " " + estimatedFinishTime);
                 send(getId(), estimatedFinishTime, CloudSimTags.VM_DATACENTER_EVENT);
             }
@@ -443,7 +445,8 @@ public class GPUWorkflowDatacenter extends PowerGpuDatacenter {
 
     @Override
     protected void updateCloudletProcessing() {
-        if (CloudSim.clock() < 0.111 || CloudSim.clock() > getLastProcessTime() + 1) {
+        Log.printLine(CloudSim.clock() + " and last time is: " + getLastProcessTime());
+        if (CloudSim.clock() < 0.111 || CloudSim.clock() >= getLastProcessTime() + 1) {
             double smallerTime = Double.MAX_VALUE;
             // 遍历每一个物理节点
             for (Host host: getHostList()) {
@@ -470,7 +473,7 @@ public class GPUWorkflowDatacenter extends PowerGpuDatacenter {
 
     @Override
     protected void checkCloudletCompletion() {
-        //Log.printLine("check");
+        Log.printLine(CloudSim.clock() + ":检查是否有任务完成");
         for (Host host: getHostList()) {
             while (host.isFinishedCloudlets()) {
                 Cloudlet cl = host.getNextFinishedCloudlet();

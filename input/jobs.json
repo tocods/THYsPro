@@ -69,6 +69,118 @@
         "ifInMaster": false,
         "deadline": "9",
         "appArgs": [],
+        "children": [
+            {
+                "child": "job3",
+                "size": 100
+            }
+        ],
+        "middlewareArgs": []
+    },
+    {
+        "name": "job3",
+        "period": "10",
+        "cpu_task": {
+            "ram": "100",
+            "pes_number": 1,
+            "length": 1000
+        },
+        "gpu_task": {
+            "kernels": [
+                {
+                    "block_num": 1,
+                    "thread_num": 1,
+                    "thread_length": 10,
+                    "hardware": "CPU",
+                    "requested_gddram_size": 0,
+                    "task_input_size": 0,
+                    "task_output_size": 0,
+                    "type": "\u6d6e\u70b9",
+                    "calcuType": 0
+                }
+            ],
+            "requested_gddram_size": 0,
+            "task_input_size": 0,
+            "task_output_size": 0
+        },
+        "host": "host2",
+        "ifManager": false,
+        "ifInMaster": false,
+        "deadline": "9",
+        "appArgs": [],
+        "children": [],
+        "middlewareArgs": []
+    },
+    {
+        "name": "job4",
+        "period": "10",
+        "cpu_task": {
+            "ram": "100",
+            "pes_number": 1,
+            "length": 1000
+        },
+        "gpu_task": {
+            "kernels": [
+                {
+                    "block_num": 1,
+                    "thread_num": 1,
+                    "thread_length": 10,
+                    "hardware": "CPU",
+                    "requested_gddram_size": 0,
+                    "task_input_size": 0,
+                    "task_output_size": 0,
+                    "type": "\u6d6e\u70b9",
+                    "calcuType": 0
+                }
+            ],
+            "requested_gddram_size": 0,
+            "task_input_size": 0,
+            "task_output_size": 0
+        },
+        "host": "host2",
+        "ifManager": false,
+        "ifInMaster": false,
+        "deadline": "9",
+        "appArgs": [],
+        "children": [
+            {
+                "child": "job5",
+                "size": 100
+            }
+        ],
+        "middlewareArgs": []
+    },
+    {
+        "name": "job5",
+        "period": "10",
+        "cpu_task": {
+            "ram": "100",
+            "pes_number": 1,
+            "length": 1000
+        },
+        "gpu_task": {
+            "kernels": [
+                {
+                    "block_num": 1,
+                    "thread_num": 1,
+                    "thread_length": 10,
+                    "hardware": "CPU",
+                    "requested_gddram_size": 0,
+                    "task_input_size": 0,
+                    "task_output_size": 0,
+                    "type": "\u6d6e\u70b9",
+                    "calcuType": 0
+                }
+            ],
+            "requested_gddram_size": 0,
+            "task_input_size": 0,
+            "task_output_size": 0
+        },
+        "host": "host2",
+        "ifManager": false,
+        "ifInMaster": false,
+        "deadline": "9",
+        "appArgs": [],
         "children": [],
         "middlewareArgs": []
     }

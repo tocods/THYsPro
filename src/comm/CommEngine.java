@@ -77,7 +77,7 @@ public class CommEngine extends GPUWorkflowFaultEngine {
 
         if(!job.packets.isEmpty()) {
             for(Packet p: job.packets) {
-                Log.printLine("发包");
+                Log.printLine(job.getName() + " 发包 " + p.toString());
                 Api.publish(Api.CommType.SEND_WITHOUT_REPLY, p.toString());
             }
             waittingJobs.put(job.getName(), job);
@@ -87,9 +87,7 @@ public class CommEngine extends GPUWorkflowFaultEngine {
         if(ifFinish()) {
             Log.printLine("仿真结束");
             // 任务全部执行完成，仿真结束
-            Packet p = new Packet();
-            p.txt = "end";
-            Api.publish(Api.CommType.SEND_WITHOUT_REPLY, p.toString());
+            Api.sendEnd();
             doComplete();
         }
     }

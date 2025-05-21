@@ -8,6 +8,8 @@
 
 package cloudsim.core;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 import cloudsim.Log;
@@ -522,17 +524,42 @@ public class CloudSim {
 			Iterator<SimEvent> fit = future.iterator();
 			queue_empty = false;
 			SimEvent first = fit.next();
-			//Log.printLine(first.getTag() + ":" + first.getSource());
+
+			//Log.printLine("同步时间: " + first.eventTime());
+			double next_time = first.eventTime() * 1000; // fncs接受不了小数时间
+			//Log.printLine("请求时间: " + next_time);
+			double true_next = Api.timeRequest((long) Math.ceil(next_time));
+			//Log.printLine("request" +  next_time/1000 + " next time: " + true_next / 1000);
+			clock = true_next / 1000;
+			Log.printLine("更新时间到：" + clock);
+			if((int)clock() < (int)first.eventTime()) {
+				Log.printLine("first event time is" + first.eventTime());
+				return false;
+			}
+
+			// 获取其他仿真器传来的事件
+			String[] events = Api.getEvents();
+			List<Event> tran2E = new ArrayList<>();
+			for(String s: events) {
+				String[] out = Api.getValue(s).split("/");
+				for(String o: out) {
+					Event event = Event.toEvent(o);
+					Log.printLine("收到事件");
+					tran2E.add(event);
+				}
+			}
+			doUpdate(tran2E);
+
 			processEvent(first);
 			future.remove(first);
 
 			fit = future.iterator();
-
 			// Check if next events are at same time...
 			boolean trymore = fit.hasNext();
 			while (trymore) {
 				SimEvent next = fit.next();
-				if (next.eventTime() == first.eventTime()) {
+				if (next.eventTime() == first.eventTime() || next.eventTime() - first.eventTime() < 1) {
+					Log.printLine(next.getTag() + ":" + next.eventTime());
 					processEvent(next);
 					toRemove.add(next);
 					trymore = fit.hasNext();
@@ -542,7 +569,7 @@ public class CloudSim {
 			}
 
 			future.removeAll(toRemove);
-
+			Api.truePublish();
 		} else {
 			queue_empty = true;
 			running = false;
@@ -749,29 +776,16 @@ public class CloudSim {
 		int dest, src;
 		SimEntity dest_ent;
 		// Update the system's clock
-		if (e.eventTime() < clock) {
+		double eventTime = e.eventTime(); // 例如 3.1412
+
+		// 向上取整保留3位小数
+		BigDecimal rounded = new BigDecimal(eventTime)
+				.setScale(3, RoundingMode.CEILING);
+
+		double result = rounded.doubleValue();
+		if (result < clock) {
 			throw new IllegalArgumentException("Past event detected.");
 		}
-		// 同步时间
-		Log.printLine("同步时间: " + e.eventTime());
-		double next_time = e.eventTime() * 1000; // fncs接受不了小数时间
-		Log.printLine("请求时间: " + next_time);
-		double true_next = Api.timeRequest((long) Math.ceil(next_time));
-		Log.printLine("request" +  next_time/1000 + " next time: " + true_next / 1000);
-		clock = true_next / 1000;
-
-		// 获取其他仿真器传来的事件
-		String[] events = Api.getEvents();
-		List<Event> tran2E = new ArrayList<>();
-		for(String s: events) {
-			Event event = Event.toEvent(Api.getValue(s));
-			Log.printLine("收到事件");
-			tran2E.add(event);
-		}
-
-		// TODO：更新内部状态
-		doUpdate(tran2E);
-		// TODO：向其他仿真器传递事件
 		// Ok now process it
 		switch (e.getType()) {
 			case SimEvent.ENULL:
@@ -821,6 +835,7 @@ public class CloudSim {
 	}
 
 	private static void doUpdate(List<Event> events) {
+		//Log.printLine("接受到了事件");
 		for(Event e: events) {
 			String src = e.src_name;
 			Integer entityId = workflow.Parameters.engineID;

@@ -38,8 +38,8 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 	public double updateJobProcessing(double currentTime, List<Double> mipsShare, List<Double> imipsShare, List<Double> mmipsShare) {
 		setCurrentMipsShare(mipsShare);
 		double timeSpam = currentTime - getPreviousTime();
-//		Log.printLine("有" + getCloudletExecList().size() + "个任务正在执行队列");
-//		Log.printLine("有" + getCloudletPausedList().size() + "个任务正在等待队列");
+		Log.printLine("有" + getCloudletExecList().size() + "个任务正在执行队列");
+		Log.printLine("有" + getCloudletPausedList().size() + "个任务正在等待队列");
 		List<ResCloudlet> toRemoves = new ArrayList<>();
 		HashMap<String, Boolean> hasJob = new HashMap<>();
 		for (ResCloudlet rcl : getCloudletExecList()) {
@@ -74,7 +74,7 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 			if(cl.getGpuTask().calcuType == 2)
 				cap = getCapacity(mmipsShare);
 			rcl.updateCloudletFinishedSoFar((long) (cap * timeSpam * rcl.getNumberOfPes() * Consts.MILLION));
-			//Log.printLine(CloudSim.clock() + ": 任务被执行， 计算能力： " + (cap  * rcl.getNumberOfPes()) + "间隔时间： " + timeSpam + " 剩余长度：" + rcl.getRemainingCloudletLength() + " 总长度：" + rcl.getCloudletTotalLength());
+			Log.printLine(CloudSim.clock() + ": 任务被执行， 计算能力： " + (cap  * rcl.getNumberOfPes()) + "间隔时间： " + timeSpam + " 剩余长度：" + rcl.getRemainingCloudletLength() + " 总长度：" + rcl.getCloudletTotalLength());
 		}
 
 		if (getCloudletExecList().size() == 0) {
@@ -181,7 +181,7 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 				new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull(), gt, false, gt.getRequestedGddramSize());
 		cc.setResourceParameter(0, 0,0);
 		cc.setName(gt.getName() + "_代理");
-		Log.printLine(cc.getRam() + "被需要");
+		//Log.printLine(cc.getRam() + "被需要");
 		ResGpuCloudlet toAdd = new ResGpuCloudlet(gt, cc);
 		toAdd.setCloudletStatus(Cloudlet.INEXEC);
 		for (ResCloudlet rcl : getCloudletPausedList()) {
@@ -194,7 +194,7 @@ public class GpuCloudletSchedulerTimeShared extends CloudletSchedulerTimeShared 
 					ramInUse += ((GpuCloudlet)cl.getCloudlet()).getRam();
 				}
 				double ramAvailable = ram - ramInUse;
-				Log.printLine(ramAvailable + "可以用");
+				//Log.printLine(ramAvailable + "可以用");
 				if(ramAvailable < cc.getRam()) {
 					//Log.printLine("aaa " + ramAvailable + " < " + ((GpuCloudlet) cloudlet).getRam());
 					Log.printLine("内存不足");

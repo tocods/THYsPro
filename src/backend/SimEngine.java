@@ -284,9 +284,9 @@ public class SimEngine {
         String faultPath = args[3];
         faultPath = "/Users/davidt/Library/Mobile Documents/com~apple~CloudDocs/gpuworkflowsim/input/faults.json";
         Integer algorithm = -1;
-        Double duration = 100.0;
-        if(duration > 0)
-            Parameters.duration = duration;
+//        Double duration = 100.0;
+//        if(duration > 0)
+//            Parameters.duration = duration;
 //        engine.parseXmlOfHost(System.getProperty("user.dir") + "\\input\\Hosts.xml");
 //        engine.parseXmlOfJob(System.getProperty("user.dir") + "\\input\\Jobs.xml");
 //        engine.setAlgorithm(Parameters.JobAllocationAlgorithm.RANDOM);
